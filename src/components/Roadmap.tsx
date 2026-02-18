@@ -1,3 +1,5 @@
+import AnimatedSection, { StaggerContainer, StaggerItem } from "./AnimatedSection";
+
 const phases = [
   {
     phase: "01",
@@ -24,62 +26,65 @@ const phases = [
 
 const Roadmap = () => {
   return (
-    <section className="relative py-32 px-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-20">
-          <p className="font-mono text-sm tracking-widest text-secondary mb-4 uppercase">Development</p>
+    <section id="roadmap" className="relative py-32 px-6">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <div className="max-w-4xl mx-auto">
+        <AnimatedSection className="text-center mb-20">
+          <p className="font-mono text-[11px] tracking-[0.3em] text-secondary/70 mb-5 uppercase">Development</p>
           <h2 className="text-5xl md:text-7xl font-display text-foreground">
             Road to <span className="text-secondary text-glow-gold">Fight Night</span>
           </h2>
-        </div>
+        </AnimatedSection>
 
-        <div className="space-y-8">
+        <StaggerContainer className="space-y-4">
           {phases.map((phase, i) => (
-            <div
-              key={i}
-              className={`relative border rounded-lg p-8 md:p-10 bg-card-gradient transition-all duration-300 ${
-                phase.status === "Active"
-                  ? "border-glow-cyan box-glow-cyan"
-                  : "border-border hover:border-glow-gold"
-              }`}
-            >
-              <div className="flex flex-col md:flex-row md:items-start gap-6">
-                <div className="shrink-0">
-                  <span className="font-display text-5xl text-muted-foreground/30">
-                    {phase.phase}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-3xl font-display text-foreground">{phase.title}</h3>
-                    <span
-                      className={`font-mono text-xs px-2 py-1 rounded ${
-                        phase.status === "Active"
-                          ? "bg-primary/20 text-primary"
-                          : phase.status === "Next"
-                          ? "bg-secondary/20 text-secondary"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {phase.status}
+            <StaggerItem key={i}>
+              <div
+                className={`relative border rounded-lg p-8 md:p-10 bg-card-gradient transition-all duration-500 hover:-translate-y-0.5 ${
+                  phase.status === "Active"
+                    ? "border-primary/20 shadow-[0_0_30px_hsl(185_80%_50%/0.06)]"
+                    : "border-border hover:border-secondary/20"
+                }`}
+              >
+                <div className="flex flex-col md:flex-row md:items-start gap-6">
+                  <div className="shrink-0">
+                    <span className="font-display text-5xl text-muted-foreground/15">
+                      {phase.phase}
                     </span>
                   </div>
-                  <p className="text-muted-foreground mb-4">{phase.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {phase.features.map((f, j) => (
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-3xl font-display text-foreground">{phase.title}</h3>
                       <span
-                        key={j}
-                        className="font-mono text-xs bg-muted text-muted-foreground px-3 py-1.5 rounded-md"
+                        className={`font-mono text-[10px] tracking-wider px-2.5 py-1 rounded-full ${
+                          phase.status === "Active"
+                            ? "bg-primary/10 text-primary/80 border border-primary/15"
+                            : phase.status === "Next"
+                            ? "bg-secondary/10 text-secondary/80 border border-secondary/15"
+                            : "bg-muted/50 text-muted-foreground/50 border border-border"
+                        }`}
                       >
-                        {f}
+                        {phase.status}
                       </span>
-                    ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground/70 mb-5">{phase.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {phase.features.map((f, j) => (
+                        <span
+                          key={j}
+                          className="font-mono text-[10px] bg-muted/40 text-muted-foreground/60 px-3 py-1.5 rounded-md border border-border/50"
+                        >
+                          {f}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );
