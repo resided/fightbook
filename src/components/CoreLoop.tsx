@@ -1,4 +1,5 @@
 import { Wallet, Zap, TrendingUp, Shield, Swords, Eye } from "lucide-react";
+import AnimatedSection, { StaggerContainer, StaggerItem } from "./AnimatedSection";
 
 const steps = [
   {
@@ -47,49 +48,58 @@ const steps = [
 
 const CoreLoop = () => {
   return (
-    <section className="relative py-32 px-6">
+    <section id="core-loop" className="relative py-32 px-6">
+      {/* Subtle divider */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-20">
-          <p className="font-mono text-sm tracking-widest text-primary mb-4 uppercase">The Core Loop</p>
+        <AnimatedSection className="text-center mb-20">
+          <p className="font-mono text-[11px] tracking-[0.3em] text-primary/70 mb-5 uppercase">The Core Loop</p>
           <h2 className="text-5xl md:text-7xl font-display text-foreground">
             Wallet DNA → <span className="text-primary text-glow-cyan">Combat</span>
           </h2>
-          <p className="mt-6 text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="mt-6 text-muted-foreground max-w-xl mx-auto">
             Six steps from wallet connection to settlement. Every stat is earned, every fight is unique, every outcome is on-chain.
           </p>
-        </div>
+        </AnimatedSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {steps.map((step, i) => (
-            <div
-              key={i}
-              className={`group relative bg-card-gradient border rounded-lg p-8 transition-all duration-500 hover:scale-[1.02] ${
-                step.accent === "primary"
-                  ? "border-glow-cyan hover:box-glow-cyan"
-                  : "border-glow-gold hover:box-glow-gold"
-              }`}
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className={`w-10 h-10 rounded-md flex items-center justify-center ${
-                    step.accent === "primary" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
-                  }`}
-                >
-                  <step.icon className="w-5 h-5" />
+            <StaggerItem key={i}>
+              <div
+                className={`group relative bg-card-gradient border rounded-lg p-7 transition-all duration-500 hover:-translate-y-1 ${
+                  step.accent === "primary"
+                    ? "border-border hover:border-primary/30 hover:shadow-[0_0_30px_hsl(185_80%_50%/0.08)]"
+                    : "border-border hover:border-secondary/30 hover:shadow-[0_0_30px_hsl(42_90%_55%/0.08)]"
+                }`}
+              >
+                {/* Phase number - subtle corner mark */}
+                <div className="absolute top-4 right-4 font-mono text-[10px] text-muted-foreground/40 tracking-wider">
+                  {String(i + 1).padStart(2, "0")}
                 </div>
-                <span className="font-mono text-xs text-muted-foreground tracking-wider uppercase">
-                  Phase {i + 1}
-                </span>
+
+                <div className="flex items-center gap-3 mb-5">
+                  <div
+                    className={`w-9 h-9 rounded-md flex items-center justify-center border ${
+                      step.accent === "primary"
+                        ? "border-primary/20 text-primary/70 bg-primary/5"
+                        : "border-secondary/20 text-secondary/70 bg-secondary/5"
+                    }`}
+                  >
+                    <step.icon className="w-4 h-4" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-display text-foreground mb-1">{step.title}</h3>
+                <p className={`text-[11px] font-mono mb-3 tracking-wider uppercase ${
+                  step.accent === "primary" ? "text-primary/50" : "text-secondary/50"
+                }`}>
+                  {step.subtitle}
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
               </div>
-              <h3 className="text-2xl font-display text-foreground mb-1">{step.title}</h3>
-              <p className={`text-sm font-mono mb-3 ${step.accent === "primary" ? "text-primary/70" : "text-secondary/70"}`}>
-                {step.subtitle}
-              </p>
-              <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );
