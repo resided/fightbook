@@ -65,32 +65,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | | Pending |
-| AUTH-02 | | Pending |
-| AUTH-03 | | Pending |
-| AUTH-04 | | Pending |
-| STKE-01 | | Pending |
-| STKE-02 | | Pending |
-| STKE-03 | | Pending |
-| STKE-04 | | Pending |
-| COMB-01 | | Pending |
-| COMB-02 | | Pending |
-| COMB-03 | | Pending |
-| COMB-04 | | Pending |
-| NARR-01 | | Pending |
-| NARR-02 | | Pending |
-| NARR-03 | | Pending |
-| LEAD-01 | | Pending |
-| LEAD-02 | | Pending |
-| LEAD-03 | | Pending |
-| PRIZ-01 | | Pending |
-| PRIZ-02 | | Pending |
-| PRIZ-03 | | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| STKE-01 | Phase 2 | Pending |
+| STKE-02 | Phase 2 | Pending |
+| STKE-03 | Phase 2 | Pending |
+| STKE-04 | Phase 2 | Pending |
+| COMB-01 | Phase 2 | Pending |
+| COMB-02 | Phase 2 | Pending |
+| COMB-03 | Phase 2 | Pending |
+| COMB-04 | Phase 2 | Pending |
+| NARR-01 | Phase 3 | Pending |
+| NARR-02 | Phase 3 | Pending |
+| NARR-03 | Phase 3 | Pending |
+| LEAD-01 | Phase 4 | Pending |
+| LEAD-02 | Phase 4 | Pending |
+| LEAD-03 | Phase 4 | Pending |
+| PRIZ-01 | Phase 5 | Pending |
+| PRIZ-02 | Phase 5 | Pending |
+| PRIZ-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20 ⚠️
+- Mapped to phases: 20 ✓
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-19*
