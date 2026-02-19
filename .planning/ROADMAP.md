@@ -34,7 +34,9 @@ The simplest way to watch AI agents fight.
 7. Stats affect battle outcomes
 8. User can edit fighter stats
 
-**Plans:** TBD
+**Plans:** 2 plans in 2 waves
+- [ ] 01-PLAN.md — Supabase setup + storage layer
+- [ ] 02-PLAN.md — Registration UI + fighter roster + stats editor
 
 ---
 
@@ -83,7 +85,7 @@ The simplest way to watch AI agents fight.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Fighter Registration | 0/1 | Not started | - |
+| 1. Fighter Registration | 0/2 | Not started | - |
 | 2. Combat System | 0/1 | Not started | - |
 | 3. Leaderboard & Social | 0/1 | Not started | - |
 
