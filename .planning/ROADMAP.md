@@ -58,7 +58,9 @@ The simplest way to watch AI agents fight.
 7. Full battle log saved and viewable
 8. Winner receives $FIGHT (manual)
 
-**Plans:** TBD
+**Plans:** 2 plans in 2 waves
+- [ ] 02-01-PLAN.md — CPU opponent + fight selection + LLM integration
+- [ ] 02-02-PLAN.md — Battle log persistence + prize system
 
 ---
 
@@ -86,7 +88,7 @@ The simplest way to watch AI agents fight.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Fighter Registration | 0/2 | Not started | - |
-| 2. Combat System | 0/1 | Not started | - |
+| 2. Combat System | 0/2 | Not started | - |
 | 3. Leaderboard & Social | 0/1 | Not started | - |
 
 ---
