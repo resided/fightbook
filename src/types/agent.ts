@@ -94,13 +94,21 @@ export interface SkillsMdConfig {
   defensiveTendency: number; // 0-100 likelihood to defend vs attack
 }
 
-export interface CompleteAgent {
-  metadata: AgentMetadata;
-  skills: SkillsMdConfig;
-  personality: AgentPersonality;
-  backstory: AgentBackstory;
-  social: AgentSocial;
-}
+// POINT BUDGET SYSTEM - Like FIFA player creation
+export const POINT_BUDGET = {
+  TOTAL: 1200,           // Total points to distribute
+  MIN_STAT: 20,          // Minimum any stat can be
+  MAX_STAT: 95,          // Maximum any stat can be (can't max everything)
+  STARTING_BASE: 30,     // Every stat starts at this
+};
+
+// Core stats that consume points (mental stats are free/derived)
+export const POINT_CONSUMING_STATS: (keyof SkillsMdConfig)[] = [
+  'striking', 'punchSpeed', 'kickPower', 'headMovement', 'footwork', 'combinations',
+  'wrestling', 'takedownDefense', 'clinchControl', 'trips', 'throws',
+  'submissions', 'submissionDefense', 'groundAndPound', 'guardPassing', 'sweeps', 
+  'topControl', 'bottomGame', 'cardio', 'chin', 'recovery', 'strength', 'flexibility',
+];
 
 export const DEFAULT_SKILLS: SkillsMdConfig = {
   name: 'New Agent',
@@ -385,4 +393,88 @@ export function detectArchetype(skills: SkillsMdConfig): AgentPersonality['arche
   if (skills.aggression > 0.8) return 'pressure';
   if (striking > 65 && grappling > 65) return 'balanced';
   return 'wildcard';
+}
+
+// POINT BUDGET SYSTEM - Like FIFA player creation
+
+// Calculate points spent (each point above the base costs 1)
+export function calculatePointsSpent(skills: SkillsMdConfig): number {
+  return POINT_CONSUMING_STATS.reduce((total, stat) => {
+    const value = skills[stat] || 0;
+    return total + Math.max(0, value - POINT_BUDGET.STARTING_BASE);
+  }, 0);
+}
+
+// Calculate points remaining
+export function calculatePointsRemaining(skills: SkillsMdConfig): number {
+  return POINT_BUDGET.TOTAL - calculatePointsSpent(skills);
+}
+
+// Check if a stat can be increased
+export function canIncreaseStat(skills: SkillsMdConfig, stat: keyof SkillsMdConfig): boolean {
+  if (!POINT_CONSUMING_STATS.includes(stat as any)) return true; // Mental stats are free
+  const currentValue = skills[stat] || 0;
+  if (currentValue >= POINT_BUDGET.MAX_STAT) return false;
+  return calculatePointsRemaining(skills) > 0;
+}
+
+// Get budget status with color coding
+export function getBudgetStatus(skills: SkillsMdConfig): { 
+  spent: number; 
+  remaining: number; 
+  percentUsed: number;
+  color: string;
+  status: string;
+} {
+  const spent = calculatePointsSpent(skills);
+  const remaining = POINT_BUDGET.TOTAL - spent;
+  const percentUsed = (spent / POINT_BUDGET.TOTAL) * 100;
+  
+  let color = 'text-green-500';
+  let status = 'Balanced';
+  
+  if (percentUsed > 90) {
+    color = 'text-red-500';
+    status = 'Maxed';
+  } else if (percentUsed > 75) {
+    color = 'text-orange-500';
+    status = 'High';
+  } else if (percentUsed > 50) {
+    color = 'text-yellow-500';
+    status = 'Medium';
+  }
+  
+  return { spent, remaining, percentUsed, color, status };
+}
+
+// Validate entire skills configuration
+export function validateSkillsBudget(skills: SkillsMdConfig): { 
+  valid: boolean; 
+  errors: string[];
+  warnings: string[];
+} {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  
+  const spent = calculatePointsSpent(skills);
+  
+  if (spent > POINT_BUDGET.TOTAL) {
+    errors.push(`Over budget by ${spent - POINT_BUDGET.TOTAL} points`);
+  }
+  
+  POINT_CONSUMING_STATS.forEach(stat => {
+    const value = skills[stat as keyof SkillsMdConfig] as number || 0;
+    if (value < POINT_BUDGET.MIN_STAT) {
+      errors.push(`${stat} is below minimum ${POINT_BUDGET.MIN_STAT}`);
+    }
+    if (value > POINT_BUDGET.MAX_STAT) {
+      errors.push(`${stat} exceeds maximum ${POINT_BUDGET.MAX_STAT}`);
+    }
+  });
+  
+  if (spent < POINT_BUDGET.TOTAL * 0.5) {
+    warnings.push('You have unspent points - use them or lose them!');
+  }
+  
+  return { valid: errors.length === 0, errors, warnings };
 }

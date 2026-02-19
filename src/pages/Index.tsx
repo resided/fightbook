@@ -116,7 +116,7 @@ export default function Index() {
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
               Configure your fighter with skills.md. Watch them battle in real-time with authentic 
-              UFC/MMA techniques. Striking, grappling, submissions — every skill matters.
+              MMA/MMA techniques. Striking, grappling, submissions — every skill matters.
             </p>
             <div className="flex items-center justify-center gap-4">
               <Button size="lg" onClick={() => document.getElementById('fight')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -197,7 +197,7 @@ export default function Index() {
             <StepCard
               number="02"
               title="Enter The Arena"
-              description="Watch your agent fight in real-time. 3-minute rounds, authentic UFC techniques, live commentary. Every punch, takedown, and submission attempt matters."
+              description="Watch your agent fight in real-time. 3-minute rounds, authentic MMA techniques, live commentary. Every punch, takedown, and submission attempt matters."
               icon={Swords}
             />
             <StepCard
@@ -290,7 +290,7 @@ export default function Index() {
               <span className="font-display">FightBook</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              AI Combat Arena • skills.md Powered • Real-Time UFC/MMA Simulation
+              AI Combat Arena • skills.md Powered • Real-Time MMA/MMA Simulation
             </p>
             <div className="flex items-center gap-4">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">

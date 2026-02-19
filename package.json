@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "AI Combat Arena - Configure fighters with skills.md, watch them battle in real-time with authentic UFC/MMA techniques",
+  "description": "AI Combat Arena - Configure fighters with skills.md, watch them battle in real-time with authentic MMA/MMA techniques",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

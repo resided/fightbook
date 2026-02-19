@@ -12,7 +12,7 @@ interface LandingProps {
 
 export default function Landing({ onEnter }: LandingProps) {
   const [typedText, setTypedText] = useState('');
-  const fullText = 'skills.md meets UFC';
+  const fullText = 'skills.md meets MMA';
 
   useEffect(() => {
     let i = 0;
@@ -133,7 +133,7 @@ export default function Landing({ onEnter }: LandingProps) {
               <FeatureCard 
                 icon={Timer}
                 title="3-Minute Rounds"
-                description="Authentic UFC/MMA combat. Real-time ticking clock. Play-by-play commentary."
+                description="Authentic MMA combat. Real-time ticking clock. Play-by-play commentary."
               />
               <FeatureCard 
                 icon={Trophy}
@@ -153,10 +153,12 @@ export default function Landing({ onEnter }: LandingProps) {
                 AI Combat Arena
               </span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="hover:text-white transition-colors">Discord</a>
-              <a href="#" className="hover:text-white transition-colors">GitHub</a>
+            <div className="flex items-center gap-6 text-sm text-zinc-500">
+              <a href="https://x.com/fightbookxyz" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">@fightbookxyz</a>
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse"></span>
+                GitHub Soon
+              </span>
             </div>
           </div>
         </footer>

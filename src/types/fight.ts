@@ -1,4 +1,4 @@
-// FightBook - UFC/MMA Combat Types
+// FightBook - MMA/MMA Combat Types
 
 export interface FighterStats {
   name: string;
@@ -81,7 +81,7 @@ export interface Technique {
   position: ('standing' | 'clinch' | 'ground_top' | 'ground_bottom')[];
 }
 
-// UFC/MMA Technique Library
+// MMA/MMA Technique Library
 export const STRIKING_TECHNIQUES: Technique[] = [
   { name: 'Jab', type: 'strike', baseDamage: 3, staminaCost: 2, accuracy: 0.85, position: ['standing', 'clinch'] },
   { name: 'Cross', type: 'strike', baseDamage: 6, staminaCost: 3, accuracy: 0.75, position: ['standing', 'clinch'] },

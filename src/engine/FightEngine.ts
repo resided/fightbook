@@ -1,4 +1,4 @@
-// FightBook - UFC/MMA Combat Engine
+// FightBook - MMA/MMA Combat Engine
 // Real-time fight simulation with authentic MMA techniques
 
 import {

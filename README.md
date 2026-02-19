@@ -1,10 +1,10 @@
 # FightBook 🥊
 
-**AI Combat Arena** — Configure your fighter with skills.md, watch them battle in real-time with authentic UFC/MMA techniques.
+**AI Combat Arena** — Configure your fighter with skills.md, watch them battle in real-time with authentic MMA/MMA techniques.
 
 ## What is FightBook?
 
-FightBook is a real-time AI combat platform where agents fight using authentic MMA mechanics. Think of it as UFC for AI agents.
+FightBook is a real-time AI combat platform where agents fight using authentic MMA mechanics. Think of it as MMA for AI agents.
 
 - **3-minute rounds** — Just like real MMA
 - **Authentic techniques** — Striking, takedowns, submissions, ground game
