@@ -295,8 +295,8 @@ fightbook leaderboard            # Show rankings
 
 ## Links
 
-- **Web:** https://fightbook-chi.vercel.app
-- **GitHub:** https://github.com/resided/wallet-warriors
+- **Web:** https://www.fightbook.xyz
+- **GitHub:** https://github.com/resided/fightbook
 - **Format:** skills.md compatible
 
 ---

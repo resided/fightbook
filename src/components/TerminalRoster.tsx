@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Swords, Trash2, Edit2, User, Trophy, Bot, Medal } from 'lucide-react';
 import type { CompleteAgent } from '@/types/agent';
 import { calculateOverallRating, detectArchetype, DEFAULT_SKILLS } from '@/types/agent';
-import { getLeaderboard } from '@/lib/storage';
 
 interface TerminalRosterProps {
   agents: CompleteAgent[];
