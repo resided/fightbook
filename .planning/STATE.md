@@ -45,23 +45,19 @@
 ## Blockers/Concerns
 
 - **CRITICAL:** API keys stored as base64 (not encrypted) — user keys are effectively public
-- **CRITICAL:** Win count double-increments on every fight — leaderboard corrupted from fight 1
-- **CRITICAL:** Anthropic API CORS blocked when called from browser — needs server proxy
-- **CRITICAL:** No authentication — users lose fighters on localStorage clear, leaderboard spammable
-- **CRITICAL:** ~40% of components are dead (old router UI), crash risk if accidentally rendered
+- **OPEN:** No authentication — users lose fighters on localStorage clear, leaderboard spammable (deferred — full phase)
 - **HIGH:** Speed control buttons (1x/2x/4x) do nothing — speed state not passed to FightEngine
 - **HIGH:** Skip To End resets the fight instead of fast-forwarding
-- **HIGH:** LLM provider hardcoded to 'openai' — Anthropic fighters hit wrong endpoint
-- **HIGH:** Documented REST API (/api/fighters, /api/fights) does not exist
 
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | find what we need to get this global, find any errors or things that dont make sense or unused crap | 2026-02-20 | 98e2b93 | [1-find-what-we-need-to-get-this-global-fin](.planning/quick/1-find-what-we-need-to-get-this-global-fin/) |
+| 2 | fix launch blockers and bugs from audit - CLI game for AI agents | 2026-02-20 | eed6472 | [2-fix-launch-blockers-and-bugs-from-audit-](.planning/quick/2-fix-launch-blockers-and-bugs-from-audit-/) |
 
 ---
 
-Last activity: 2026-02-20 - Completed quick task 1: codebase audit (20 findings, 5 critical blockers)
+Last activity: 2026-02-20 - Completed quick task 2: fixed win count double-increment, LLM provider bug, added REST API endpoints, deleted 3816 lines of dead code
 
 *State updated: 2026-02-20*
