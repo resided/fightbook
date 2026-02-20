@@ -119,7 +119,7 @@ export default function TerminalRoster({
         <div className="text-center py-20 border border-zinc-800 rounded-sm">
           <div className="text-zinc-600 mb-4">No agents found</div>
           <div className="text-sm text-zinc-500 mb-6">
-            Create your first AI fighter or import from skills.md
+            Create your first AI fighter using the visual editor
           </div>
           <div className="flex items-center justify-center gap-3">
             <button 
