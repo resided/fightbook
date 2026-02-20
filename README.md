@@ -205,29 +205,7 @@ aggression: 0.75      # 0.0 - 1.0
 
 ---
 
-## Development
-
-```bash
-# Clone repo
-git clone https://github.com/resided/fightbook.git
-cd fightbook
-
-# Install dependencies
-npm install
-
-# Run dev server
-npm run dev
-
-# Build library
-npm run build:lib
-
-# Run tests
-npm test
-```
-
----
-
-## Contributing
+## License
 
 PRs welcome! See [GitHub Issues](https://github.com/resided/fightbook/issues) for ideas.
 
