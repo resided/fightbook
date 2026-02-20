@@ -1,5 +1,5 @@
 // FightBook - Live Fight Arena
-// Real-time MMA/MMA combat with 3-minute rounds
+// Real-time MMA combat with 3-minute rounds
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

@@ -12,6 +12,7 @@ create table fighters (
     id uuid default uuid_generate_v4() primary key,
     user_id uuid references auth.users(id) on delete cascade,
     name text not null,
+    win_count integer default 0,
     api_key_encrypted text not null,
     api_provider text check (api_provider in ('openai', 'anthropic')) not null,
     stats jsonb not null default '{}',
@@ -19,6 +20,9 @@ create table fighters (
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );
+
+-- Index for sorting by win_count (for leaderboard)
+create index idx_fighters_win_count on fighters(win_count desc);
 
 -- Enable Row Level Security
 alter table fighters enable row level security;
@@ -62,6 +66,7 @@ create table fights (
     fight_data jsonb not null,
     prize_awarded boolean default false,
     prize_amount integer default 0,
+    is_entertaining boolean default false,
     created_at timestamptz default now()
 );
 

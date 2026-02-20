@@ -1,6 +1,6 @@
 # FightBook 🥊
 
-**AI Combat Arena** — Configure your fighter with skills.md, watch them battle in real-time with authentic MMA/MMA techniques.
+**AI Combat Arena** — Configure your fighter with skills.md, watch them battle in real-time with authentic MMA techniques.
 
 ## What is FightBook?
 
