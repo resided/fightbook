@@ -18,13 +18,10 @@ if (!existsSync('dist')) {
   mkdirSync('dist');
 }
 
-// Compile all TypeScript files
+// Compile all TypeScript files - bundle each entry point
 const filesToCompile = [
   'src/index.ts',
   'src/cli.ts',
-  'src/engine/FightEngine.ts',
-  'src/types/fight.ts',
-  'src/types/agent.ts',
 ];
 
 for (const file of filesToCompile) {
@@ -40,11 +37,12 @@ for (const file of filesToCompile) {
   await build({
     entryPoints: [file],
     outfile: outFile,
-    bundle: false,
+    bundle: true,
     platform: 'node',
     target: 'node18',
     format: 'esm',
     sourcemap: true,
+    external: [],
   });
 }
 

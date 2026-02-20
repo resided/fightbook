@@ -13,7 +13,7 @@
     "./cli": "./dist/cli.js"
   },
   "bin": {
-    "fightbook": "./dist/cli.js"
+    "fightbook": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -45,7 +45,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/resided/fightbook.git"
+    "url": "git+https://github.com/resided/fightbook.git"
   },
   "bugs": {
     "url": "https://github.com/resided/fightbook/issues"
