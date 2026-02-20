@@ -108,21 +108,7 @@ export async function saveFightToDb(
       throw new Error(`Failed to save fight: ${error.message}`);
     }
 
-    // Update win_count for winner (only for non-practice fights)
-    if (!isPractice && fightRecord.winnerId) {
-      const { data: fighter } = await supabase
-        .from('fighters')
-        .select('win_count')
-        .eq('id', fightRecord.winnerId)
-        .single();
-      
-      if (fighter) {
-        await supabase
-          .from('fighters')
-          .update({ win_count: (fighter.win_count || 0) + 1 })
-          .eq('id', fightRecord.winnerId);
-      }
-    }
+    // win_count is incremented by incrementWinCount() in TextFight.tsx onFightEnd — do not add it here
 
     return rowToFightRecord(data);
   } else {
