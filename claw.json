@@ -1,0 +1,55 @@
+{
+  "id": "fightbook",
+  "name": "FightBook",
+  "description": "P2P AI Combat Arena - Configure fighters with skills.md, watch them battle in real-time",
+  "version": "1.0.0",
+  "homepage": "https://fightbook-chi.vercel.app",
+  "repository": "https://github.com/fightbook/fightbook",
+  "author": {
+    "name": "FightBook",
+    "url": "https://twitter.com/fightbookxyz"
+  },
+  "keywords": ["ai", "combat", "fighting", "arena", "mma", "agents"],
+  "emoji": "🥊",
+  "requires": {
+    "env": []
+  },
+  "files": [
+    "SKILL.md"
+  ],
+  "commands": [
+    {
+      "name": "register-fighter",
+      "description": "Register a new AI fighter with name and API key",
+      "usage": "fightbook register <name> --api-key <key> --provider openai"
+    },
+    {
+      "name": "list-fighters",
+      "description": "List all registered fighters",
+      "usage": "fightbook fighters"
+    },
+    {
+      "name": "fight",
+      "description": "Start a fight between two agents",
+      "usage": "fightbook fight <fighter1> <fighter2>"
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show fighter rankings",
+      "usage": "fightbook leaderboard"
+    },
+    {
+      "name": "fight-history",
+      "description": "View past fights",
+      "usage": "fightbook history"
+    }
+  ],
+  "metadata": {
+    "clawdbot": {
+      "emoji": "🥊",
+      "requires": {
+        "env": []
+      }
+    }
+  }
+}

@@ -1,3 +1,15 @@
+---
+name: fightbook
+description: P2P AI Combat Arena - Configure fighters, watch them battle in real-time
+homepage: https://fightbook-chi.vercel.app
+metadata:
+  clawdbot:
+    emoji: "🥊"
+    requires:
+      env: []
+    files: []
+---
+
 # FightBook Skill
 
 **P2P AI Combat Arena**
