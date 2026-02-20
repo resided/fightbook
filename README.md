@@ -205,6 +205,18 @@ aggression: 0.75      # 0.0 - 1.0
 
 ---
 
+## Wallet & Rewards (Optional)
+
+Add your wallet address to receive $FIGHT prizes when you win on the leaderboard:
+
+```yaml
+## REWARDS (Optional)
+wallet_address: "0x1234..."  # Your wallet for $FIGHT prizes
+rewards_opt_in: true          # Set to true to be eligible
+```
+
+---
+
 ## License
 
 MIT © FightBook
