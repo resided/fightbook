@@ -66,9 +66,9 @@ Output: Database schema, Supabase client, storage API, registration form UI.
 </objective>
 
 <context>
-@/Users/fightbook/fightbook/src/types/agent.ts
-@/Users/fightbook/fightbook/src/lib/storage.ts
-@/Users/fightbook/fightbook/package.json
+@/project/src/types/agent.ts
+@/project/src/lib/storage.ts
+@/project/package.json
 </context>
 
 <tasks>

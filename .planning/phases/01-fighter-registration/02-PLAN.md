@@ -46,10 +46,10 @@ Output: Registration form, fighter list view, stats editor integration.
 </objective>
 
 <context>
-@/Users/fightbook/fightbook/src/types/agent.ts
-@/Users/fightbook/fightbook/src/lib/storage.ts
-@/Users/fightbook/fightbook/src/components/SkillsEditor.tsx
-@/Users/fightbook/fightbook/src/components/AgentRoster.tsx
+@/project/src/types/agent.ts
+@/project/src/lib/storage.ts
+@/project/src/components/SkillsEditor.tsx
+@/project/src/components/AgentRoster.tsx
 </context>
 
 <tasks>
