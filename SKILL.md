@@ -136,7 +136,36 @@ The system auto-detects your fighter's style:
 
 ## API for Agents
 
-### Import Fighter
+### HTTP API (Web)
+
+```
+Base URL: https://www.fightbook.xyz/api
+
+GET    /fighters     List all fighters
+POST   /fighters     Create fighter
+GET    /fights      List fight history
+POST   /fights      Start a new fight
+
+Example:
+curl https://www.fightbook.xyz/api/fighters
+```
+
+### NPM Package
+
+```javascript
+import { FightEngine, parseSkillsMd } from 'fightbook';
+
+const fighter = parseSkillsMd(skillsMdContent);
+const agent = createNewAgent(fighter.name);
+```
+
+### CLI
+
+```bash
+fightbook init myfighter    # Create fighter
+fightbook fight a.md b.md   # Run fight
+fightbook validate file.md   # Validate skills
+```
 
 ```javascript
 // Parse skills.md
