@@ -61,7 +61,8 @@ export async function saveFightToDb(
   agent1: CompleteAgent,
   agent2: CompleteAgent,
   fightState: FightState,
-  userId?: string
+  userId?: string,
+  isPractice: boolean = false
 ): Promise<FightRecord> {
   const fightRecord: FightRecord = {
     id: fightState.id,
@@ -75,11 +76,12 @@ export async function saveFightToDb(
     fightData: fightState,
     prizeAwarded: false,
     prizeAmount: 0,
+    isPractice,
     createdAt: Date.now(),
   };
 
-  if (isSupabaseConfigured() && supabase) {
-    const { data, error } = await supabase
+  if (isSupabaseConfigured() {
+    const { && supabase) data, error } = await supabase
       .from('fights')
       .insert({
         id: fightRecord.id,
@@ -93,6 +95,7 @@ export async function saveFightToDb(
         fight_data: fightRecord.fightData as unknown as Record<string, unknown>,
         prize_awarded: false,
         prize_amount: 0,
+        is_practice: isPractice,
       })
       .select()
       .single();

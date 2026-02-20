@@ -67,6 +67,7 @@ create table fights (
     prize_awarded boolean default false,
     prize_amount integer default 0,
     is_entertaining boolean default false,
+    is_practice boolean default false,  -- true for CPU/practice fights, false for PvP
     created_at timestamptz default now()
 );
 
@@ -97,6 +98,9 @@ create index idx_fights_created_at on fights(created_at desc);
 -- Index for agent lookups
 create index idx_fights_agent1_id on fights(agent1_id);
 create index idx_fights_agent2_id on fights(agent2_id);
+
+-- Index for practice fight filtering
+create index idx_fights_is_practice on fights(is_practice) where is_practice = false;
 
 -- Fight votes table - for voting on entertaining fights
 create table fight_votes (

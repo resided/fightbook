@@ -38,6 +38,11 @@
 
 - [x] **PRIZ-01**: Winner receives $FIGHT token (manual award for now)
 
+### Anti-Spam
+
+- [ ] **SPAM-01**: CPU fights are practice mode, don't count for leaderboard
+- [ ] **SPAM-02**: Only PvP fights count toward leaderboard wins
+
 ### Social
 
 - [x] **SOCL-01**: User can share fight recap to X (Twitter)

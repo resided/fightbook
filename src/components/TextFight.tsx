@@ -25,6 +25,7 @@ import { getCpuDecision, CpuFighter, CpuDifficulty } from '@/lib/cpuOpponent';
 import { getLlmDecision, LlmConfig, mapTechniqueName } from '@/lib/llmClient';
 import { getFighterApiKey, getFighter } from '@/lib/fighterStorage';
 import { incrementWinCount, incrementLossCount } from '@/lib/leaderboard';
+import FightIntro from './FightIntro';
 import {
   STRIKING_TECHNIQUES,
   GRAPPLING_TECHNIQUES,
@@ -58,6 +59,10 @@ export default function TextFight({
   const [showStats, setShowStats] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingFighter, setThinkingFighter] = useState<string | null>(null);
+  const [showIntro, setShowIntro] = useState(() => {
+    // Show intro on first fight of session
+    return !sessionStorage.getItem('fightbook_seen_intro');
+  });
   const engineRef = useRef<FightEngine | null>(null);
   const actionsEndRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -190,12 +195,16 @@ export default function TextFight({
           fightData: finalFight,
         });
         
+        // Determine if this is a practice fight (CPU vs any opponent)
+        // CPU fights don't count toward leaderboard wins
+        const isPracticeFight = isAgent1Cpu || isAgent2Cpu;
+        
         // Also try to save to database (Supabase)
-        saveFightToDb(agent1, agent2, finalFight)
+        saveFightToDb(agent1, agent2, finalFight, undefined, isPracticeFight)
           .then(() => {
             toast({
               title: "Fight Saved!",
-              description: "Fight saved to database.",
+              description: isPracticeFight ? "Practice fight saved (won't affect leaderboard)." : "Fight saved to database.",
             });
           })
           .catch((err) => {
@@ -206,8 +215,8 @@ export default function TextFight({
             });
           });
         
-        // Update win/loss counts
-        if (finalFight.winner) {
+        // Update win/loss counts - ONLY for PvP fights (not practice/CPU fights)
+        if (finalFight.winner && !isPracticeFight) {
           const winnerId = finalFight.winner === agent1.skills.name ? agent1.metadata.id : agent2.metadata.id;
           const loserId = finalFight.winner === agent1.skills.name ? agent2.metadata.id : agent1.metadata.id;
           
@@ -219,6 +228,8 @@ export default function TextFight({
           }).catch((err) => {
             console.error('Failed to update win/loss counts:', err);
           });
+        } else if (isPracticeFight) {
+          console.log('Practice fight - leaderboard stats not updated');
         }
         
         toast({
@@ -300,8 +311,24 @@ export default function TextFight({
   const currentRound = fight.rounds[fight.currentRound - 1];
   const timeDisplay = currentRound ? formatTime(currentRound.timeRemaining) : '0:00';
 
+  const handleDismissIntro = () => {
+    setShowIntro(false);
+    sessionStorage.setItem('fightbook_seen_intro', 'true');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Intro Screen */}
+      <AnimatePresence>
+        {showIntro && (
+          <FightIntro 
+            onDismiss={handleDismissIntro}
+            agent1Name={agent1.skills.name}
+            agent2Name={agent2.skills.name}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="px-6 py-4">
