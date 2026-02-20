@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 // Views
 import Landing from '@/pages/Landing';
+import TerminalBoot from '@/components/TerminalBoot';
 import TerminalRoster from '@/components/TerminalRoster';
 import TerminalLeaderboard from '@/components/TerminalLeaderboard';
 import SkillsEditor from '@/components/SkillsEditor';
@@ -27,6 +28,10 @@ function App() {
   const [editingAgent, setEditingAgent] = useState<CompleteAgent | null>(null);
   const [fightingAgents, setFightingAgents] = useState<[CompleteAgent, CompleteAgent] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showBoot, setShowBoot] = useState(() => {
+    // Only show boot sequence on first visit
+    return !localStorage.getItem('fightbook_boot_complete');
+  });
 
   useEffect(() => {
     loadAgents();
@@ -96,12 +101,22 @@ function App() {
     }
   };
 
+  const handleBootComplete = () => {
+    setShowBoot(false);
+    localStorage.setItem('fightbook_boot_complete', 'true');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-zinc-500 animate-pulse">loading...</div>
       </div>
     );
+  }
+
+  // Terminal Boot Sequence (first visit only)
+  if (showBoot) {
+    return <TerminalBoot onComplete={handleBootComplete} />;
   }
 
   // Landing page
