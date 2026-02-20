@@ -1,6 +1,6 @@
 {
   "name": "fightbook",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "description": "AI Combat Arena - Configure fighters with skills.md, simulate MMA combat in real-time",
   "main": "./dist/index.js",
