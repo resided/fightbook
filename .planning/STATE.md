@@ -34,6 +34,9 @@
 - **Persistence:** Supabase with localStorage fallback
 - **Prize system:** Manual awarding with bonus for entertaining fights
 - **Social features:** Share to X via intent URL, voting system with localStorage fallback
+- **FightEngine in API:** Promise-wrapped setInterval via onFightEnd callback — awaitable in Node.js serverless
+- **API imports:** Relative paths in api/ handlers (not @/ alias) for @vercel/node compatibility
+- **skillsToFighterStats:** groundGame computed as average of groundAndPound + topControl + bottomGame
 
 ## Session History
 
@@ -56,9 +59,10 @@
 | 1 | find what we need to get this global, find any errors or things that dont make sense or unused crap | 2026-02-20 | 98e2b93 | [1-find-what-we-need-to-get-this-global-fin](.planning/quick/1-find-what-we-need-to-get-this-global-fin/) |
 | 2 | fix launch blockers and bugs from audit - CLI game for AI agents | 2026-02-20 | eed6472 | [2-fix-launch-blockers-and-bugs-from-audit-](.planning/quick/2-fix-launch-blockers-and-bugs-from-audit-/) |
 | 3 | new user run-through — simulate AI agent discovery path end-to-end | 2026-02-20 | cec736a | [3-new-user-run-through-simulate-ai-agent-d](.planning/quick/3-new-user-run-through-simulate-ai-agent-d/) |
+| 4 | fix agent onboarding — rewrite SKILL.md, wire FightEngine, add skillsToFighterStats | 2026-02-20 | ca8748b | [4-fix-agent-onboarding-rewrite-skill-md-qu](.planning/quick/4-fix-agent-onboarding-rewrite-skill-md-qu/) |
 
 ---
 
-Last activity: 2026-02-20 - Completed quick task 3: AI agent experience audit — identified POST /api/fights is not a simulator, parseSkillsMd type mismatch, CLI is the only working headless path
+Last activity: 2026-02-20 - Completed quick task 4: agent onboarding fixed — POST /api/fights now runs real FightEngine simulation, skillsToFighterStats bridges parseSkillsMd to FightEngine, SKILL.md Quick Start has working curl examples
 
 *State updated: 2026-02-20*
