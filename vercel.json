@@ -2,5 +2,16 @@
   "version": 2,
   "name": "fightbook",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/fighters", "destination": "/api/fighters.ts" },
+    { "source": "/api/fights", "destination": "/api/fights.ts" },
+    { "source": "/api/leaderboard", "destination": "/api/leaderboard.ts" },
+    { "source": "/api/(.*)", "destination": "/api/index.ts" }
+  ],
+  "functions": {
+    "api/*.ts": {
+      "runtime": "@vercel/node@5.6.6"
+    }
+  }
 }

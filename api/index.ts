@@ -7,8 +7,8 @@ export default function handler(req: Request) {
     'Access-Control-Allow-Origin': '*',
   };
 
-  if (path === '/api/health') {
-    return new Response(JSON.stringify({ status: 'ok' }), { status: 200, headers });
+  if (path === '/api/health' || path === '/health') {
+    return new Response(JSON.stringify({ status: 'ok', timestamp: Date.now() }), { status: 200, headers });
   }
 
   if (path === '/api/leaderboard') {
@@ -29,6 +29,11 @@ export default function handler(req: Request) {
 
   return new Response(JSON.stringify({ 
     message: 'FightBook API',
-    endpoints: ['/api/health', '/api/fighters', '/api/leaderboard', '/api/fights']
+    endpoints: [
+      { path: '/api/health', method: 'GET' },
+      { path: '/api/fighters', method: 'GET' },
+      { path: '/api/fights', method: 'GET' },
+      { path: '/api/leaderboard', method: 'GET' }
+    ]
   }), { status: 200, headers });
 }
