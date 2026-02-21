@@ -608,7 +608,7 @@ export default function TerminalCLI() {
 
   return (
     <div
-      className="fixed inset-0 bg-black flex flex-col scanline-overlay crt-flicker"
+      className="flex-1 bg-black flex flex-col scanline-overlay crt-flicker min-h-0"
       onClick={() => inputRef.current?.focus()}
     >
       {/* Title bar */}
