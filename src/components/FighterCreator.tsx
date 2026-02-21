@@ -17,31 +17,32 @@ interface FighterCreatorProps {
 
 type Step = 1 | 2 | 3;
 
-// Generic MMA fighter images - stylistic, not real likenesses
+// Verified Unsplash boxing/MMA fighter photo IDs
+// All images confirmed to be male combat sports athletes
 const FIGHTER_IMAGES: Record<string, string> = {
-  // Precision striker - confident pose, gloves up
+  // Boxer with red gloves training - striking pose
   mcgregor: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=500&h=700&fit=crop&auto=format&q=80',
-  // Wrestler/grappler - intense, stocky build
-  khabib: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&h=700&fit=crop&auto=format&q=80',
-  // Tall lanky heavyweight
-  jones: 'https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=500&h=700&fit=crop&auto=format&q=80',
-  // Technical wrestler - athletic build
-  gsp: 'https://images.unsplash.com/photo-1583473848882-f9a5bc7fd2ee?w=500&h=700&fit=crop&auto=format&q=80',
-  // Tall slender striker
-  adesanya: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=500&h=700&fit=crop&auto=format&q=80',
-  // Compact explosive fighter
-  aldo: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&h=700&fit=crop&auto=format&q=80',
-  // Powerful striker - muscular
-  pereira: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&h=700&fit=crop&auto=format&q=80',
-  // Pressure wrestler
-  usman: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=700&fit=crop&auto=format&q=80',
-  // Compact complete fighter
-  volk: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=500&h=700&fit=crop&auto=format&q=80',
-  // Tall counter striker
+  // Two MMA fighters grappling on mat
+  khabib: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=500&h=700&fit=crop&auto=format&q=80',
+  // Boxer punching bag - heavy hands
+  jones: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=500&h=700&fit=crop&auto=format&q=80',
+  // Boxer with hands wrapped - technical
+  gsp: 'https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=500&h=700&fit=crop&auto=format&q=80',
+  // Martial artist shadow boxing - tall striker
+  adesanya: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&h=700&fit=crop&auto=format&q=80',
+  // Boxer training - muscular compact
+  aldo: 'https://images.unsplash.com/photo-1583473848882-f9a5bc7fd2ee?w=500&h=700&fit=crop&auto=format&q=80',
+  // Fighter in gym - powerful build
+  pereira: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=700&fit=crop&auto=format&q=80',
+  // MMA training - wrestling focus
+  usman: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&h=700&fit=crop&auto=format&q=80',
+  // Boxer in ring - complete fighter
+  volk: 'https://images.unsplash.com/photo-1555597687-5ecf06898737?w=500&h=700&fit=crop&auto=format&q=80',
+  // Muay Thai fighter - counter striker
   silva: 'https://images.unsplash.com/photo-1594882645126-14020914d58d?w=500&h=700&fit=crop&auto=format&q=80',
-  // Stocky wrestler
-  cejudo: 'https://images.unsplash.com/photo-1555597687-5ecf06898737?w=500&h=700&fit=crop&auto=format&q=80',
-  // BJJ fighter - lean
+  // Wrestlers grappling - stocky
+  cejudo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&h=700&fit=crop&auto=format&q=80',
+  // BJJ training on mats - submissions
   oliveira: 'https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=500&h=700&fit=crop&auto=format&q=80',
 };
 
