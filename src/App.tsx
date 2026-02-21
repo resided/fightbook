@@ -200,7 +200,7 @@ function App() {
             >
               <span className="text-orange-500 font-bold text-lg">⌘</span>
               <span className="font-bold">fightbook</span>
-              <span className="text-zinc-600 text-sm">v1.0</span>
+              <span className="text-zinc-600 text-sm">v1.1.17</span>
             </div>
 
             <nav className="flex items-center gap-1">

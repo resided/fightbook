@@ -5,9 +5,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 import { FightEngine } from './engine/FightEngine';
 import { parseSkillsMd, createNewAgent, generateFullSkillsMd } from './types/agent';
 import type { CompleteAgent } from './types/agent';
+import type { FightState } from './types/fight';
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -55,6 +57,38 @@ function validateSkills(filePath: string) {
   console.log(`  Wrestling: ${skills.wrestling}`);
   console.log(`  Submissions: ${skills.submissions}`);
   console.log(`  Cardio: ${skills.cardio}`);
+}
+
+async function saveCLIFight(fightResult: FightState, fighter1Name: string, fighter2Name: string): Promise<void> {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    console.log('Fight not saved (no DB configured)');
+    return;
+  }
+  try {
+    const supabase = createClient(url, key);
+    // CLI fights use placeholder IDs — winner tracking by name only
+    const winnerId: string | null = null;
+    const { error } = await supabase.from('fights').insert({
+      agent1_id: 'cli_fighter_1',
+      agent2_id: 'cli_fighter_2',
+      winner_id: winnerId,
+      method: fightResult.method || 'DEC',
+      round: fightResult.endRound || fightResult.currentRound,
+      prize_awarded: false,
+      prize_amount: 0,
+      is_practice: true,
+      fight_data: fightResult as unknown as Record<string, unknown>,
+    });
+    if (error) {
+      console.log(`Fight not saved: ${error.message}`);
+    } else {
+      console.log('Fight saved to history.');
+    }
+  } catch (err) {
+    console.log('Fight not saved (DB error)');
+  }
 }
 
 async function runFight(file1: string, file2: string) {
@@ -162,38 +196,38 @@ async function runFight(file1: string, file2: string) {
     heart: agent2.skills.heart,
   };
   
-  const engine = new FightEngine(fighter1Stats, fighter2Stats, {
-    onAction: (action) => {
-      const time = new Date(action.timestamp).toISOString().substr(14, 5);
-      const impact = action.impact ? `[${action.impact.toUpperCase()}]` : '';
-      console.log(`${time} R${action.round} ${impact} ${action.description}`);
-    },
-    onRoundEnd: (round) => {
-      console.log(`\n--- End of Round ${round.round} ---\n`);
-    },
-    onFightEnd: (fight) => {
-      console.log('\n═══════════════════════════════════════');
-      if (fight.winner) {
-        console.log(`🏆 WINNER: ${fight.winner} by ${fight.method}`);
-      } else {
-        console.log('🤝 DRAW');
-      }
-      console.log('═══════════════════════════════════════\n');
-    },
+  const fightResult = await new Promise<FightState>((resolve) => {
+    const engine = new FightEngine(fighter1Stats, fighter2Stats, {
+      onAction: (action) => {
+        const time = new Date(action.timestamp).toISOString().substr(14, 5);
+        const impact = action.impact ? `[${action.impact.toUpperCase()}]` : '';
+        console.log(`${time} R${action.round} ${impact} ${action.description}`);
+      },
+      onRoundEnd: (round) => {
+        console.log(`\n--- End of Round ${round.round} ---\n`);
+      },
+      onFightEnd: (fight) => {
+        console.log('\n═══════════════════════════════════════');
+        if (fight.winner) {
+          console.log(`WINNER: ${fight.winner} by ${fight.method}`);
+        } else {
+          console.log('DRAW');
+        }
+        console.log('═══════════════════════════════════════\n');
+        engine.stop();
+        resolve(fight);
+      },
+    });
+    engine.start();
+    // Safety ceiling: resolve after 30s regardless
+    setTimeout(() => {
+      const state = engine.getState();
+      engine.stop();
+      resolve(state);
+    }, 30000);
   });
-  
-  // Fast simulation - 100ms per tick
-  const interval = setInterval(() => {
-    // Engine ticks are handled internally
-  }, 100);
-  
-  // Stop after fight ends
-  setTimeout(() => {
-    clearInterval(interval);
-    engine.stop();
-  }, 30000); // Max 30 seconds
-  
-  engine.start();
+
+  await saveCLIFight(fightResult, fighter1Stats.name, fighter2Stats.name);
 }
 
 // Main
@@ -226,7 +260,7 @@ async function main() {
     case 'version':
     case '-v':
     case '--version':
-      console.log('fightbook v1.0.0');
+      console.log('fightbook v1.1.17');
       break;
       
     case 'help':
