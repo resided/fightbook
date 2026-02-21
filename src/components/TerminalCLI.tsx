@@ -203,9 +203,9 @@ export default function TerminalCLI() {
       add([
         { type: 'system', text: '  ═══ REGISTER FIGHTER ═══' },
         { type: 'output', text: '  Archetypes: striker, grappler, balanced, pressure, counter' },
-        { type: 'output', text: '  Stats auto-distributed within 1200pt budget. Max 95 per stat.' },
+        { type: 'output', text: '  Stats are auto-assigned based on your archetype.' },
         { type: 'output', text: '' },
-        { type: 'output', text: '  Enter fighter name:' },
+        { type: 'output', text: '  Step 1/3: Enter fighter name:' },
       ]);
       return;
     }
@@ -219,17 +219,28 @@ export default function TerminalCLI() {
           add([{ type: 'output', text: '  No fighters registered. Type \'register\' to add one.' }]);
         } else {
           const lines: Entry[] = [
-            { type: 'system', text: '  ┌──────────────────────┬──────┬──────────┐' },
-            { type: 'system', text: '  │ FIGHTER              │ WINS │ FIGHTS   │' },
-            { type: 'system', text: '  ├──────────────────────┼──────┼──────────┤' },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'fight', text: '                         FIGHTER ROSTER' },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'output', text: '' },
           ];
-          data.forEach(f => {
-            const name = f.name.slice(0, 20).padEnd(20);
-            const wins = String(f.win_count || 0).padStart(4);
-            const total = String((f.metadata?.totalFights) || 0).padStart(8);
-            lines.push({ type: 'output', text: `  │ ${name} │ ${wins} │ ${total} │` });
+          data.forEach((f, i) => {
+            const xHandle = (f.metadata?.xHandle as string) || '@unknown';
+            const record = `${f.win_count || 0}W-${(f.metadata?.losses as number) || 0}L`;
+            const archetype = Object.keys(ARCHETYPES).find(arch => 
+              ARCHETYPES[arch].striking === (f.stats?.striking || 0)
+            ) || 'custom';
+            
+            lines.push({ type: 'fight', text: `  ┌─── ${f.name.toUpperCase()} ${'─'.repeat(Math.max(0, 45 - f.name.length))}┐` });
+            lines.push({ type: 'output', text: `  │  Creator: ${xHandle.padEnd(39)}│` });
+            lines.push({ type: 'output', text: `  │  Record:  ${record.padEnd(39)}│` });
+            lines.push({ type: 'output', text: `  │  Style:   ${archetype.padEnd(39)}│` });
+            lines.push({ type: 'system', text: `  │  Type 'stats ${f.name}' for full profile │` });
+            lines.push({ type: 'fight', text: `  └${'─'.repeat(48)}┘` });
+            lines.push({ type: 'output', text: '' });
           });
-          lines.push({ type: 'system', text: '  └──────────────────────┴──────┴──────────┘' });
+          lines.push({ type: 'system', text: `  Total fighters: ${data.length}` });
+          lines.push({ type: 'system', text: '  Type \'fight <name> vs <name>\' to match any two fighters' });
           add(lines);
         }
       } catch {
@@ -242,29 +253,39 @@ export default function TerminalCLI() {
     if (lower === 'leaderboard') {
       setProcessing(true);
       try {
-        const res = await fetch(`${API}/leaderboard`);
-        const data: LeaderboardEntry[] = await res.json();
-        if (!data?.length) {
+        const res = await fetch(`${API}/fighters`);
+        const fighters: Fighter[] = await res.json();
+        if (!fighters?.length) {
           add([{ type: 'output', text: '  No fighters ranked yet.' }]);
         } else {
+          // Sort by wins
+          const sorted = [...fighters].sort((a, b) => (b.win_count || 0) - (a.win_count || 0));
+          
           const lines: Entry[] = [
-            { type: 'fight', text: '  ═══════════════════════════════════════════════' },
-            { type: 'fight', text: '                 🏆 LEADERBOARD 🏆               ' },
-            { type: 'fight', text: '  ═══════════════════════════════════════════════' },
-            { type: 'system', text: '   #   │ FIGHTER              │ WINS │ W-L     ' },
-            { type: 'system', text: '  ─────┼──────────────────────┼──────┼─────────' },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'fight', text: '                         🏆 LEADERBOARD 🏆                      ' },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'output', text: '' },
           ];
-          data.forEach((f, i) => {
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${String(i + 1).padStart(3)} `;
-            const name = f.name.slice(0, 20).padEnd(20);
-            const wins = String(f.win_count).padStart(4);
-            const record = `${f.win_count}-${f.losses}`.padStart(7);
-            lines.push({
-              type: i < 3 ? 'fight' : 'output',
-              text: `   ${medal} │ ${name} │ ${wins} │ ${record} `,
+          sorted.forEach((f, i) => {
+            const xHandle = (f.metadata?.xHandle as string) || '@unknown';
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${String(i + 1).padStart(2)}.`;
+            const wins = f.win_count || 0;
+            const losses = (f.metadata?.losses as number) || 0;
+            const total = wins + losses;
+            const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+            
+            lines.push({ 
+              type: i < 3 ? 'fight' : 'output', 
+              text: `   ${medal} ${f.name}` 
+            });
+            lines.push({ 
+              type: 'system', 
+              text: `      Creator: ${xHandle} | ${wins}W-${losses}L (${winRate}%)` 
             });
           });
-          lines.push({ type: 'fight', text: '  ═══════════════════════════════════════════════' });
+          lines.push({ type: 'output', text: '' });
+          lines.push({ type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' });
           add(lines);
         }
       } catch {
@@ -526,11 +547,30 @@ export default function TerminalCLI() {
         add([{ type: 'error', text: '  Name must be 2-30 characters.' }]);
         return;
       }
-      setRegisterMode({ step: 'archetype', data: { ...data, name: value } });
+      setRegisterMode({ step: 'xhandle', data: { ...data, name: value } });
       add([
         { type: 'output', text: `  Name: ${value}` },
-        { type: 'output', text: '  Choose archetype:' },
+        { type: 'output', text: '' },
+        { type: 'output', text: '  Step 2/3: Enter your X (Twitter) handle:' },
+        { type: 'output', text: '  (e.g., @elonmusk or elonmusk)' },
+        { type: 'system', text: '  This links the fighter to you for the leaderboard.' },
+      ]);
+      return;
+    }
+
+    if (step === 'xhandle') {
+      const xHandle = value.startsWith('@') ? value : `@${value}`;
+      if (value.length < 2 || value.length > 20) {
+        add([{ type: 'error', text: '  X handle must be 2-20 characters.' }]);
+        return;
+      }
+      setRegisterMode({ step: 'archetype', data: { ...data, xHandle } });
+      add([
+        { type: 'output', text: `  X Handle: ${xHandle}` },
+        { type: 'output', text: '' },
+        { type: 'output', text: '  Step 3/3: Choose archetype:' },
         { type: 'output', text: '  [striker] [grappler] [balanced] [pressure] [counter]' },
+        { type: 'system', text: '  Stats will be auto-assigned based on your choice.' },
       ]);
       return;
     }
@@ -542,9 +582,13 @@ export default function TerminalCLI() {
         return;
       }
 
+      const stats = ARCHETYPES[arch];
       setRegisterMode(null);
       add([
         { type: 'output', text: `  Archetype: ${arch}` },
+        { type: 'system', text: '  Auto-assigned stats:' },
+        { type: 'output', text: `    Striking: ${stats.striking} | Wrestling: ${stats.wrestling} | Cardio: ${stats.cardio}` },
+        { type: 'output', text: `    Chin: ${stats.chin} | Recovery: ${stats.recovery} | Strength: ${stats.strength}` },
         { type: 'loading', text: '  Registering fighter...' },
       ]);
 
@@ -554,7 +598,8 @@ export default function TerminalCLI() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: data.name,
-            stats: { ...ARCHETYPES[arch], name: data.name },
+            stats: { ...stats, name: data.name },
+            metadata: { xHandle: data.xHandle, totalFights: 0, losses: 0 },
           }),
         });
         const result = await res.json();
@@ -566,7 +611,12 @@ export default function TerminalCLI() {
             { type: 'fight', text: '' },
             { type: 'fight', text: `  ✅ ${data.name} has entered the arena!` },
             { type: 'output', text: `  Archetype: ${arch}` },
+            { type: 'output', text: `  X Handle: ${data.xHandle}` },
             { type: 'output', text: `  ID: ${result.id}` },
+            { type: 'output', text: '' },
+            { type: 'system', text: '  📝 Stats were auto-assigned based on your archetype.' },
+            { type: 'system', text: '  Type \'stats ' + data.name.toLowerCase() + '\' to see full breakdown.' },
+            { type: 'output', text: '' },
             { type: 'output', text: `  Type 'fight ${data.name.toLowerCase()} vs <opponent>' to battle!` },
           ]);
         }
