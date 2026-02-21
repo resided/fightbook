@@ -56,7 +56,7 @@ export default function TextFight({
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(1); // 1x, 2x, 4x
   const [actions, setActions] = useState<FightAction[]>([]);
-  const [showStats, setShowStats] = useState(true);
+  const [showStats, setShowStats] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingFighter, setThinkingFighter] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(() => {
@@ -328,7 +328,7 @@ export default function TextFight({
 
       {/* Header */}
       <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="px-6 py-4">
+        <div className="px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {onBack && (
@@ -405,7 +405,7 @@ export default function TextFight({
         {/* Center - Fight Feed */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Round Header */}
-          <div className="border-b border-border/50 px-6 py-4">
+          <div className="border-b border-border/50 px-3 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Badge variant="outline" className="text-lg px-4 py-1">
@@ -447,7 +447,7 @@ export default function TextFight({
           </div>
 
           {/* Fight Log */}
-          <ScrollArea className="flex-1 p-6" ref={scrollRef}>
+          <ScrollArea className="flex-1 p-3 sm:p-6" ref={scrollRef}>
             <div className="max-w-3xl mx-auto space-y-2">
               {/* Fight Start */}
               {actions.length === 0 && (

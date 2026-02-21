@@ -189,7 +189,7 @@ export default function SkillsEditor({ agent, onSave, onCancel }: SkillsEditorPr
           <textarea
             value={skillsMd}
             onChange={(e) => handleSkillsMdChange(e.target.value)}
-            className="w-full h-[500px] bg-black border border-zinc-800 rounded-sm p-4 font-mono text-sm resize-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+            className="w-full h-[280px] sm:h-[500px] bg-black border border-zinc-800 rounded-sm p-4 font-mono text-sm resize-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
             spellCheck={false}
           />
         </div>
@@ -266,7 +266,7 @@ function VisualEditor({
   };
 
   return (
-    <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+    <div className="space-y-6 max-h-[70vh] sm:max-h-[500px] overflow-y-auto pr-2">
       {/* Budget Status */}
       <div className={`border rounded-sm p-4 ${budgetStatus.bg}`}>
         <div className="flex items-center justify-between">

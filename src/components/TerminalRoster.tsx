@@ -143,7 +143,7 @@ export default function TerminalRoster({
             <Trophy className="w-4 h-4 text-yellow-500" />
             <span className="text-sm font-medium">Rankings</span>
           </div>
-          <div className="grid grid-cols-5 gap-4 px-4 py-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 px-4 py-3">
             {[...agents]
               .sort((a, b) => b.metadata.ranking - a.metadata.ranking)
               .slice(0, 5)
@@ -167,36 +167,35 @@ export default function TerminalRoster({
       )}
 
       {/* Action Bar */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
         <div className="text-zinc-500 text-sm">
           {agents.length} fighter{agents.length !== 1 ? 's' : ''} in roster
+          {selectedForFight && (
+            <span className="text-orange-500 ml-2">→ select opponent for <strong>{selectedForFight.skills.name}</strong></span>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          {selectedForFight && (
-            <span className="text-sm text-orange-500">
-              Select opponent for <strong>{selectedForFight.skills.name}</strong>
-            </span>
-          )}
-          <button 
+          <button
             onClick={onCreate}
             className="btn-minimal text-orange-500"
           >
-            + new agent
+            + new
           </button>
-          <button 
+          <button
             onClick={handleFightCpu}
             disabled={agents.length === 0}
             className="btn-minimal text-blue-400 disabled:opacity-30 flex items-center gap-2"
           >
             <Bot className="w-4 h-4" />
-            fight cpu
+            vs cpu
           </button>
         </div>
       </div>
 
       {/* Agent List */}
       <div className="border border-zinc-800 rounded-sm overflow-hidden">
-        <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-zinc-900 text-xs text-zinc-500 uppercase tracking-wider">
+        {/* Desktop header */}
+        <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-2 bg-zinc-900 text-xs text-zinc-500 uppercase tracking-wider">
           <div className="col-span-4">Agent</div>
           <div className="col-span-2">Record</div>
           <div className="col-span-2">Rating</div>
@@ -207,83 +206,95 @@ export default function TerminalRoster({
         {agents.map((agent) => {
           const isCurrent = currentAgent?.metadata.id === agent.metadata.id;
           const isSelected = selectedForFight?.metadata.id === agent.metadata.id;
-          const record = `${agent.metadata.wins}-${agent.metadata.losses}-${agent.metadata.draws}`;
           const rating = calculateOverallRating(agent.skills);
           const archetype = detectArchetype(agent.skills);
 
           return (
-            <div 
+            <div
               key={agent.metadata.id}
-              className={`grid grid-cols-12 gap-4 px-4 py-3 border-t border-zinc-800 items-center hover:bg-zinc-900/30 transition-colors ${
-                isSelected ? 'bg-orange-500/10 border-orange-500/30' : ''
+              className={`border-t border-zinc-800 transition-colors ${
+                isSelected ? 'bg-orange-500/10' : 'hover:bg-zinc-900/30'
               }`}
             >
-              {/* Agent Name */}
-              <div className="col-span-4">
-                <div className="flex items-center gap-2">
-                  {isCurrent && (
-                    <span className="text-orange-500" title="Active">●</span>
-                  )}
-                  <div>
-                    <div className="font-medium">{agent.skills.name}</div>
-                    <div className="text-xs text-zinc-500">
-                      "{agent.skills.nickname}"
+              {/* Mobile card */}
+              <div className="sm:hidden px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isCurrent && <span className="text-orange-500 shrink-0">●</span>}
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{agent.skills.name}</div>
+                      <div className="text-xs text-zinc-500 font-mono">
+                        <span className="text-green-500">{agent.metadata.wins}</span>
+                        <span className="text-zinc-600">-</span>
+                        <span className="text-red-500">{agent.metadata.losses}</span>
+                        <span className="text-zinc-600"> · </span>
+                        <span className="text-zinc-400">{rating}</span>
+                        <span className="text-zinc-600"> · </span>
+                        <span className="capitalize">{archetype}</span>
+                      </div>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0 ml-2">
+                    <button onClick={() => onSelect(agent)} className="p-2 text-zinc-500 hover:text-white transition-colors" title="Set Active">
+                      <User className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleSelectForFight(agent)}
+                      className={`p-2 transition-colors ${isSelected ? 'text-orange-500' : 'text-zinc-500 hover:text-white'}`}
+                      title={isSelected ? 'Cancel' : 'Fight'}
+                    >
+                      <Swords className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => onEdit(agent)} className="p-2 text-zinc-500 hover:text-white transition-colors" title="Edit">
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => onDelete(agent.metadata.id)} className="p-2 text-zinc-500 hover:text-red-500 transition-colors" title="Delete">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Record */}
-              <div className="col-span-2 font-mono text-sm">
-                <span className="text-green-500">{agent.metadata.wins}</span>
-                <span className="text-zinc-600">-</span>
-                <span className="text-red-500">{agent.metadata.losses}</span>
-                <span className="text-zinc-600">-</span>
-                <span className="text-zinc-500">{agent.metadata.draws}</span>
-              </div>
-
-              {/* Rating */}
-              <div className="col-span-2 font-mono text-sm">
-                {rating}
-              </div>
-
-              {/* Archetype */}
-              <div className="col-span-2">
-                <span className="text-xs text-zinc-400 capitalize">{archetype}</span>
-              </div>
-
-              {/* Actions */}
-              <div className="col-span-2 flex items-center justify-end gap-1">
-                <button
-                  onClick={() => onSelect(agent)}
-                  className="p-1.5 text-zinc-500 hover:text-white transition-colors"
-                  title="Set Active"
-                >
-                  <User className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleSelectForFight(agent)}
-                  className={`p-1.5 transition-colors ${
-                    isSelected ? 'text-orange-500' : 'text-zinc-500 hover:text-white'
-                  }`}
-                  title={isSelected ? 'Cancel' : 'Select for Fight'}
-                >
-                  <Swords className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onEdit(agent)}
-                  className="p-1.5 text-zinc-500 hover:text-white transition-colors"
-                  title="Edit"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onDelete(agent.metadata.id)}
-                  className="p-1.5 text-zinc-500 hover:text-red-500 transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+              {/* Desktop row */}
+              <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 items-center">
+                <div className="col-span-4">
+                  <div className="flex items-center gap-2">
+                    {isCurrent && <span className="text-orange-500">●</span>}
+                    <div>
+                      <div className="font-medium">{agent.skills.name}</div>
+                      <div className="text-xs text-zinc-500">"{agent.skills.nickname}"</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-2 font-mono text-sm">
+                  <span className="text-green-500">{agent.metadata.wins}</span>
+                  <span className="text-zinc-600">-</span>
+                  <span className="text-red-500">{agent.metadata.losses}</span>
+                  <span className="text-zinc-600">-</span>
+                  <span className="text-zinc-500">{agent.metadata.draws}</span>
+                </div>
+                <div className="col-span-2 font-mono text-sm">{rating}</div>
+                <div className="col-span-2">
+                  <span className="text-xs text-zinc-400 capitalize">{archetype}</span>
+                </div>
+                <div className="col-span-2 flex items-center justify-end gap-1">
+                  <button onClick={() => onSelect(agent)} className="p-1.5 text-zinc-500 hover:text-white transition-colors" title="Set Active">
+                    <User className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleSelectForFight(agent)}
+                    className={`p-1.5 transition-colors ${isSelected ? 'text-orange-500' : 'text-zinc-500 hover:text-white'}`}
+                    title={isSelected ? 'Cancel' : 'Select for Fight'}
+                  >
+                    <Swords className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => onEdit(agent)} className="p-1.5 text-zinc-500 hover:text-white transition-colors" title="Edit">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => onDelete(agent.metadata.id)} className="p-1.5 text-zinc-500 hover:text-red-500 transition-colors" title="Delete">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           );

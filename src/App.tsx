@@ -7,7 +7,7 @@ import {
   saveAgent,
   deleteAgent,
 } from '@/lib/storage';
-import { syncAgent } from '@/lib/fighterStorage';
+import { syncAgent, getFighters } from '@/lib/fighterStorage';
 import { generateFullSkillsMd, createNewAgent, validateSkillsBudget } from '@/types/agent';
 import { toast } from 'sonner';
 
@@ -38,12 +38,20 @@ function App() {
     loadAgents();
   }, []);
 
-  const loadAgents = () => {
-    const allAgents = getAllAgents();
-    const current = getCurrentAgent();
-    setAgents(allAgents);
-    setCurrentAgentState(current);
-    setIsLoading(false);
+  const loadAgents = async () => {
+    try {
+      const allAgents = await getFighters();
+      const current = getCurrentAgent();
+      setAgents(allAgents);
+      setCurrentAgentState(current);
+    } catch {
+      const allAgents = getAllAgents();
+      const current = getCurrentAgent();
+      setAgents(allAgents);
+      setCurrentAgentState(current);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEnter = () => {
@@ -195,7 +203,8 @@ function App() {
           <div className="max-w-6xl mx-auto px-4 py-3 space-y-2">
             <div className="flex items-center justify-center gap-2 text-xs text-zinc-500">
               <span className="text-zinc-600">$FIGHT on Base:</span>
-              <span className="font-mono text-zinc-400">0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07</span>
+              <span className="font-mono text-zinc-400 hidden sm:inline">0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07</span>
+              <span className="font-mono text-zinc-400 sm:hidden">0xfC01…2a1b07</span>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText('0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07');
@@ -235,7 +244,7 @@ function App() {
             >
               <span className="text-orange-500 font-bold text-lg">⌘</span>
               <span className="font-bold">fightbook</span>
-              <span className="text-zinc-600 text-sm">v1.1.17</span>
+              <span className="text-zinc-600 text-sm hidden sm:inline">v1.1.17</span>
             </div>
 
             <nav className="flex items-center gap-1">
@@ -251,11 +260,12 @@ function App() {
               >
                 history
               </NavButton>
-              <NavButton 
-                active={view === 'leaderboard'} 
+              <NavButton
+                active={view === 'leaderboard'}
                 onClick={() => setView('leaderboard')}
               >
-                leaderboard
+                <span className="hidden sm:inline">leaderboard</span>
+                <span className="sm:hidden">board</span>
               </NavButton>
               <NavButton 
                 active={view === 'create'} 

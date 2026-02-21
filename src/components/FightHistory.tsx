@@ -107,7 +107,8 @@ export default function FightHistory({ onBack }: FightHistoryProps) {
 
       {/* Fight List */}
       <div className="border border-zinc-800 rounded-sm overflow-hidden">
-        <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-zinc-900 text-xs text-zinc-500 uppercase tracking-wider">
+        {/* Desktop header */}
+        <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-2 bg-zinc-900 text-xs text-zinc-500 uppercase tracking-wider">
           <div className="col-span-4">Matchup</div>
           <div className="col-span-2">Result</div>
           <div className="col-span-2">Method</div>
@@ -125,8 +126,38 @@ export default function FightHistory({ onBack }: FightHistoryProps) {
 
           return (
             <div key={fight.id}>
-              <div 
-                className="grid grid-cols-12 gap-4 px-4 py-3 border-t border-zinc-800 items-center hover:bg-zinc-900/30 transition-colors cursor-pointer"
+              {/* Mobile row */}
+              <div
+                className="sm:hidden px-4 py-3 border-t border-zinc-800 hover:bg-zinc-900/30 transition-colors cursor-pointer"
+                onClick={() => setExpandedFight(isExpanded ? null : fight.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium truncate">
+                      {agent1?.skills.name || 'Unknown'} <span className="text-zinc-600">vs</span> {agent2?.skills.name || 'Unknown'}
+                    </div>
+                    <div className="text-xs text-zinc-500 mt-0.5">
+                      <span className={`uppercase font-medium ${isWin ? 'text-green-500' : isLoss ? 'text-red-500' : 'text-zinc-500'}`}>
+                        {isWin ? 'Win' : isLoss ? 'Loss' : 'Draw'}
+                      </span>
+                      <span className="text-zinc-600"> · </span>
+                      {fight.method} R{fight.round}
+                      <span className="text-zinc-700"> · </span>
+                      {new Date(fight.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0 ml-2">
+                    <button onClick={(e) => { e.stopPropagation(); shareFight(fight, agent1, agent2); }} className="p-1.5 text-zinc-500 hover:text-blue-400 transition-colors">
+                      <Twitter className="w-4 h-4" />
+                    </button>
+                    <ChevronRight className={`w-4 h-4 text-zinc-600 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop row */}
+              <div
+                className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 border-t border-zinc-800 items-center hover:bg-zinc-900/30 transition-colors cursor-pointer"
                 onClick={() => setExpandedFight(isExpanded ? null : fight.id)}
               >
                 {/* Matchup */}
@@ -180,7 +211,7 @@ export default function FightHistory({ onBack }: FightHistoryProps) {
               {/* Expanded Details */}
               {isExpanded && (
                 <div className="border-t border-zinc-800 bg-zinc-900/20 px-4 py-4">
-                  <div className="grid grid-cols-2 gap-6 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
                     <div>
                       <h4 className="text-zinc-500 mb-2">{agent1?.skills.name || 'Fighter 1'} Stats</h4>
                       <div className="space-y-1 font-mono text-xs">

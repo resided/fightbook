@@ -37,7 +37,7 @@ function rowToAgent(row: FighterRow): CompleteAgent {
   const rowMetadata = row.metadata as Record<string, unknown>;
   return {
     metadata: {
-      id: row.id,
+      id: (rowMetadata?.id as string) || row.id,
       name: row.name,
       createdAt: new Date(row.created_at).getTime(),
       updatedAt: new Date(row.updated_at).getTime(),
@@ -73,7 +73,6 @@ function agentToRow(agent: CompleteAgent, apiKey?: string, provider?: string): P
     stats: agent.skills as unknown as Record<string, unknown>,
     metadata: {
       ...agent.metadata,
-      id: undefined, // Let DB generate
       createdAt: undefined,
       updatedAt: undefined,
     } as unknown as Record<string, unknown>,
@@ -142,7 +141,7 @@ export async function getFighters(): Promise<CompleteAgent[]> {
 
     if (error) {
       console.error('Failed to fetch fighters:', error.message);
-      return [];
+      return storage.getAllAgents();
     }
 
     return data.map(rowToAgent);
@@ -306,46 +305,38 @@ export async function syncAgent(
   apiKey?: string,
   apiProvider?: 'openai' | 'anthropic'
 ): Promise<CompleteAgent> {
-  // Check if agent exists in Supabase
   if (isSupabaseConfigured() && supabase) {
-    // Try to update first
+    // Look up by local ID stored in metadata JSONB
     const { data: existing } = await supabase
       .from('fighters')
       .select('id')
-      .eq('id', agent.metadata.id)
-      .single();
+      .filter('metadata->>id', 'eq', agent.metadata.id)
+      .maybeSingle();
 
     if (existing) {
-      // Update existing
       const updateData: Partial<FighterRow> = {
         name: agent.metadata.name,
         stats: agent.skills as unknown as Record<string, unknown>,
         metadata: {
           ...agent.metadata,
-          id: undefined,
           createdAt: undefined,
           updatedAt: undefined,
         } as unknown as Record<string, unknown>,
       };
-
       if (apiKey) {
         updateData.api_key_encrypted = encryptApiKey(apiKey);
         updateData.api_provider = apiProvider;
       }
-
       const { error } = await supabase
         .from('fighters')
         .update(updateData)
-        .eq('id', agent.metadata.id);
-
-      if (error) {
-        console.error('Failed to sync fighter:', error.message);
-      }
+        .eq('id', existing.id);
+      if (error) console.error('Failed to sync fighter:', error.message);
     } else {
-      // Insert new
-      await supabase
+      const { error } = await supabase
         .from('fighters')
         .insert(agentToRow(agent, apiKey, apiProvider));
+      if (error) console.error('Failed to insert fighter:', error.message);
     }
   }
 

@@ -135,7 +135,7 @@ export default function TerminalBoot({ onComplete }: TerminalBootProps) {
         {/* Terminal Output */}
         <div 
           ref={scrollRef}
-          className="p-6 font-mono text-sm h-[500px] overflow-y-auto bg-black scroll-smooth"
+          className="p-4 sm:p-6 font-mono text-sm h-[55vh] sm:h-[500px] overflow-y-auto bg-black scroll-smooth"
         >
           {/* Completed Lines */}
           {visibleLines.map((line, i) => (
@@ -179,7 +179,7 @@ export default function TerminalBoot({ onComplete }: TerminalBootProps) {
         {/* Status Bar */}
         <div className="flex items-center justify-between px-4 py-2 bg-zinc-900 border-t border-zinc-800 text-xs text-zinc-600">
           <div className="flex items-center gap-4">
-            <span>v1.0.0</span>
+            <span>v1.1.17</span>
             <span className="text-zinc-700">|</span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-green-500" />
