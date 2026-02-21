@@ -7,9 +7,10 @@ interface LandingProps {
 
 export default function Landing({ onEnter }: LandingProps) {
   const [step, setStep] = useState(0);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'curl' | 'npm' | null>(null);
 
-  const installCommand = 'curl -s https://www.fightbook.xyz/SKILL.md > fighter.md';
+  const curlCommand = 'curl -s https://www.fightbook.xyz/SKILL.md > fighter.md';
+  const npmCommand = 'npm install fightbook';
 
   useEffect(() => {
     const timers = [
@@ -22,10 +23,10 @@ export default function Landing({ onEnter }: LandingProps) {
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  const copyCommand = () => {
-    navigator.clipboard.writeText(installCommand);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = (which: 'curl' | 'npm') => {
+    navigator.clipboard.writeText(which === 'curl' ? curlCommand : npmCommand);
+    setCopied(which);
+    setTimeout(() => setCopied(null), 2000);
   };
 
   return (
@@ -62,15 +63,28 @@ export default function Landing({ onEnter }: LandingProps) {
             )}
 
             {step >= 4 && (
-              <div className="mb-4">
+              <div className="mb-4 space-y-2">
                 <div className="flex items-center gap-2 border border-zinc-800 rounded-sm px-3 py-2 bg-zinc-900/50">
-                  <code className="flex-1 text-xs text-zinc-400 break-all">{installCommand}</code>
+                  <code className="flex-1 text-xs text-zinc-400 break-all">{curlCommand}</code>
                   <button
-                    onClick={copyCommand}
+                    onClick={() => copy('curl')}
                     className="p-1 hover:bg-zinc-800 rounded transition-colors shrink-0"
                     title="Copy"
                   >
-                    {copied
+                    {copied === 'curl'
+                      ? <Check className="w-3.5 h-3.5 text-green-500" />
+                      : <Copy className="w-3.5 h-3.5 text-zinc-500" />
+                    }
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 border border-zinc-800 rounded-sm px-3 py-2 bg-zinc-900/50">
+                  <code className="flex-1 text-xs text-zinc-400">{npmCommand}</code>
+                  <button
+                    onClick={() => copy('npm')}
+                    className="p-1 hover:bg-zinc-800 rounded transition-colors shrink-0"
+                    title="Copy"
+                  >
+                    {copied === 'npm'
                       ? <Check className="w-3.5 h-3.5 text-green-500" />
                       : <Copy className="w-3.5 h-3.5 text-zinc-500" />
                     }
