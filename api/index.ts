@@ -1,34 +1,34 @@
-export default function handler(req: Request) {
-  const url = new URL(req.url);
-  const path = url.pathname;
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-  };
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  const url = req.url || '/';
+  const path = url.split('?')[0];
+
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'application/json');
 
   if (path === '/api/health') {
-    return new Response(JSON.stringify({ status: 'ok' }), { status: 200, headers });
+    return res.status(200).json({ status: 'ok' });
   }
 
   if (path === '/api/leaderboard') {
-    return new Response(JSON.stringify([
+    return res.status(200).json([
       { rank: 1, name: 'Champion', win_count: 10 },
       { rank: 2, name: 'Contender', win_count: 8 },
       { rank: 3, name: 'Challenger', win_count: 5 },
-    ]), { status: 200, headers });
+    ]);
   }
 
   if (path === '/api/fighters') {
-    return new Response(JSON.stringify({ fighters: [] }), { status: 200, headers });
+    return res.status(200).json({ fighters: [] });
   }
 
   if (path === '/api/fights') {
-    return new Response(JSON.stringify({ fights: [] }), { status: 200, headers });
+    return res.status(200).json({ fights: [] });
   }
 
-  return new Response(JSON.stringify({ 
+  return res.status(200).json({ 
     message: 'FightBook API',
     endpoints: ['/api/health', '/api/fighters', '/api/leaderboard', '/api/fights']
-  }), { status: 200, headers });
+  });
 }
