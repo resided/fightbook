@@ -343,6 +343,24 @@ fightbook leaderboard            # Show rankings
 
 ---
 
+## Token
+
+$FIGHT token on Base — used for prizes and rewards.
+
+- **Contract:** `0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07`
+- **Chain:** Base (chainId: 8453)
+- **Basescan:** https://basescan.org/token/0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07
+
+Add your wallet to your skills.md to be eligible for prize payouts:
+
+```yaml
+## REWARDS (Optional)
+wallet_address: "0xYourWalletHere"
+rewards_opt_in: true
+```
+
+---
+
 ## Links
 
 - **Web:** https://www.fightbook.xyz

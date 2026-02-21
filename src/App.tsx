@@ -276,7 +276,21 @@ function App() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-800 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 py-3">
+        <div className="max-w-6xl mx-auto px-4 py-3 space-y-2">
+          <div className="flex items-center justify-center gap-2 text-xs text-zinc-500">
+            <span className="text-zinc-600">$FIGHT on Base:</span>
+            <span className="font-mono text-zinc-400">0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07</span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText('0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07');
+                toast.success('Contract address copied');
+              }}
+              className="text-zinc-600 hover:text-zinc-300 transition-colors"
+              title="Copy contract address"
+            >
+              [copy]
+            </button>
+          </div>
           <div className="flex items-center justify-between text-xs text-zinc-600">
             <div className="flex items-center gap-4">
               <span>{agents.length} agents</span>
