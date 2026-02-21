@@ -1,17 +1,17 @@
 export default function handler(req: Request) {
   const url = new URL(req.url);
-  const path = url.pathname.replace('/_api', '') || '/';
+  let path = url.pathname;
 
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
   };
 
-  if (path === '/health' || path === '/api/health') {
+  if (path === '/api/health' || path === '/_api/health') {
     return new Response(JSON.stringify({ status: 'ok', timestamp: Date.now() }), { status: 200, headers });
   }
 
-  if (path === '/leaderboard' || path === '/api/leaderboard') {
+  if (path === '/api/leaderboard' || path === '/_api/leaderboard') {
     return new Response(JSON.stringify([
       { rank: 1, name: 'Champion', win_count: 10 },
       { rank: 2, name: 'Contender', win_count: 8 },
@@ -19,11 +19,11 @@ export default function handler(req: Request) {
     ]), { status: 200, headers });
   }
 
-  if (path === '/fighters' || path === '/api/fighters') {
+  if (path === '/api/fighters' || path === '/_api/fighters') {
     return new Response(JSON.stringify({ fighters: [] }), { status: 200, headers });
   }
 
-  if (path === '/fights' || path === '/api/fights') {
+  if (path === '/api/fights' || path === '/_api/fights') {
     return new Response(JSON.stringify({ fights: [] }), { status: 200, headers });
   }
 
