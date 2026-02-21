@@ -2,9 +2,5 @@
   "version": 2,
   "name": "fightbook",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.ts" }
-  ]
+  "outputDirectory": "dist"
 }
