@@ -6,9 +6,6 @@
   "framework": null,
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/api/fighters", "dest": "/api/fighters.ts" },
-    { "src": "/api/fights", "dest": "/api/fights.ts" },
-    { "src": "/api/leaderboard", "dest": "/api/leaderboard.ts" },
     { "src": "/api/(.*)", "dest": "/api/index.ts" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
