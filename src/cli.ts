@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import { FightEngine } from './engine/FightEngine';
-import { parseSkillsMd, createNewAgent, generateFullSkillsMd } from './types/agent';
+import { parseSkillsMd, createNewAgent, generateFullSkillsMd, validateSkillsBudget, DEFAULT_SKILLS, POINT_BUDGET, calculatePointsSpent } from './types/agent';
 import type { CompleteAgent } from './types/agent';
 import type { FightState } from './types/fight';
 
@@ -57,6 +57,26 @@ function validateSkills(filePath: string) {
   console.log(`  Wrestling: ${skills.wrestling}`);
   console.log(`  Submissions: ${skills.submissions}`);
   console.log(`  Cardio: ${skills.cardio}`);
+
+  // Merge with defaults to get complete config for budget calculation
+  const fullSkills = { ...DEFAULT_SKILLS, ...skills };
+  const spent = calculatePointsSpent(fullSkills);
+  const validation = validateSkillsBudget(fullSkills);
+
+  console.log(`  Budget: ${spent} / ${POINT_BUDGET.TOTAL} points used`);
+
+  if (validation.warnings.length > 0) {
+    for (const warn of validation.warnings) {
+      console.log(`  Warning: ${warn}`);
+    }
+  }
+
+  if (!validation.valid) {
+    for (const err of validation.errors) {
+      console.error(`  Error: ${err}`);
+    }
+    process.exit(1);
+  }
 }
 
 async function saveCLIFight(fightResult: FightState, fighter1Name: string, fighter2Name: string): Promise<void> {
