@@ -481,11 +481,10 @@ export default function TerminalCLI() {
         }
 
         add([
-          { type: 'fight', text: '' },
-          { type: 'fight', text: '  ═══════════════════════════════════════════════' },
-          { type: 'fight', text: `  ⚔  ${fA.name}  vs  ${fB.name}  ⚔` },
-          { type: 'fight', text: '  ═══════════════════════════════════════════════' },
-          { type: 'system', text: '  🎙 LIVE FROM THE FIGHTBOOK ARENA...' },
+          { type: 'system', text: '' },
+          { type: 'system', text: '  [MAIN EVENT]' },
+          { type: 'fight', text: `  ${fA.name.toUpperCase()} VS ${fB.name.toUpperCase()}` },
+          { type: 'system', text: '  [FIGHT STARTS]' },
           { type: 'output', text: '' },
         ]);
 
@@ -504,24 +503,28 @@ export default function TerminalCLI() {
 
         const lines: Entry[] = [];
 
-        // Show full fight log with play-by-play
+        // Show fight log
         if (result.fight_log?.length) {
           result.fight_log.forEach((l: string) => {
-            const isHighlight = /💥|🏆|🛑|🔗|📢/.test(l);
-            const isRound = /═══ Round|End of Round/.test(l);
-            lines.push({ 
-              type: isHighlight ? 'fight' : isRound ? 'system' : 'output', 
-              text: `  ${l}` 
-            });
+            const isCritical = l.startsWith('>>');
+            const isRound = l.startsWith('===');
+            const isEnd = l.startsWith('--');
+            
+            if (isCritical) {
+              lines.push({ type: 'fight', text: `  ${l}` });
+            } else if (isRound || isEnd) {
+              lines.push({ type: 'system', text: `  ${l}` });
+            } else {
+              lines.push({ type: 'output', text: `  ${l}` });
+            }
           });
         }
 
         // Final result
-        lines.push({ type: 'fight', text: '' });
-        lines.push({ type: 'fight', text: '  ═══════════════════════════════════════════════' });
-        lines.push({ type: 'fight', text: `  🏆 WINNER: ${result.winner || 'DRAW'}` });
-        lines.push({ type: 'fight', text: `  💥 Method: ${result.method} (Round ${result.round})` });
-        lines.push({ type: 'fight', text: '  ═══════════════════════════════════════════════' });
+        lines.push({ type: 'output', text: '' });
+        lines.push({ type: 'system', text: '  [RESULT]' });
+        lines.push({ type: 'fight', text: `  WINNER: ${result.winner || 'DRAW'}` });
+        lines.push({ type: 'fight', text: `  METHOD: ${result.method}` });
 
         add(lines);
       } catch (e: any) {
