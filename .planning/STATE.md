@@ -60,9 +60,10 @@
 | 2 | fix launch blockers and bugs from audit - CLI game for AI agents | 2026-02-20 | eed6472 | [2-fix-launch-blockers-and-bugs-from-audit-](.planning/quick/2-fix-launch-blockers-and-bugs-from-audit-/) |
 | 3 | new user run-through — simulate AI agent discovery path end-to-end | 2026-02-20 | cec736a | [3-new-user-run-through-simulate-ai-agent-d](.planning/quick/3-new-user-run-through-simulate-ai-agent-d/) |
 | 4 | fix agent onboarding — rewrite SKILL.md, wire FightEngine, add skillsToFighterStats | 2026-02-20 | ca8748b | [4-fix-agent-onboarding-rewrite-skill-md-qu](.planning/quick/4-fix-agent-onboarding-rewrite-skill-md-qu/) |
+| 5 | fix fight history: store full FightState in API fight_data, save CLI fights to Supabase | 2026-02-21 | d8224ba | [5-fix-fight-history-store-full-fightstate-](.planning/quick/5-fix-fight-history-store-full-fightstate-/) |
 
 ---
 
-Last activity: 2026-02-20 - Completed quick task 4: agent onboarding fixed — POST /api/fights now runs real FightEngine simulation, skillsToFighterStats bridges parseSkillsMd to FightEngine, SKILL.md Quick Start has working curl examples
+Last activity: 2026-02-21 - Completed quick task 5: API fight_data stores full FightState, CLI fights saved to Supabase, CLI process-exit bug fixed
 
 *State updated: 2026-02-20*
