@@ -68,12 +68,11 @@ async function saveCLIFight(fightResult: FightState, fighter1Name: string, fight
   }
   try {
     const supabase = createClient(url, key);
-    // CLI fights use placeholder IDs — winner tracking by name only
-    const winnerId: string | null = null;
+    // CLI fights use null IDs — no real fighter records exist for CLI agents
     const { error } = await supabase.from('fights').insert({
-      agent1_id: 'cli_fighter_1',
-      agent2_id: 'cli_fighter_2',
-      winner_id: winnerId,
+      agent1_id: null,
+      agent2_id: null,
+      winner_id: null,
       method: fightResult.method || 'DEC',
       round: fightResult.endRound || fightResult.currentRound,
       prize_awarded: false,
