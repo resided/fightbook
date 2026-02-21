@@ -1,6 +1,13 @@
 # Supabase Setup
 
-## Quick Setup
+## Quick Setup (CLI)
+
+```bash
+# Push schema to remote database
+supabase db push
+```
+
+## Alternative (Dashboard)
 
 1. Go to your Supabase project dashboard
 2. Open the **SQL Editor**
