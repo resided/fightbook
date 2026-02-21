@@ -17,22 +17,175 @@ interface FighterCreatorProps {
 
 type Step = 1 | 2 | 3;
 
-// Placeholder gradient images - replace with actual fighter images
-// Using abstract gradient backgrounds until proper images are sourced
-const FIGHTER_IMAGES: Record<string, string> = {
-  mcgregor: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=500&h=700&fit=crop&q=80',
-  khabib: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=500&h=700&fit=crop&q=80',
-  jones: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=500&h=700&fit=crop&q=80',
-  gsp: 'https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=500&h=700&fit=crop&q=80',
-  adesanya: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&h=700&fit=crop&q=80',
-  aldo: 'https://images.unsplash.com/photo-1583473848882-f9a5bc7fd2ee?w=500&h=700&fit=crop&q=80',
-  pereira: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=700&fit=crop&q=80',
-  usman: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&h=700&fit=crop&q=80',
-  volk: 'https://images.unsplash.com/photo-1555597687-5ecf06898737?w=500&h=700&fit=crop&q=80',
-  silva: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&h=700&fit=crop&q=80',
-  cejudo: 'https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=500&h=700&fit=crop&q=80',
-  oliveira: 'https://images.unsplash.com/photo-1594882645126-14020914d58d?w=500&h=700&fit=crop&q=80',
+// Pixel art fighter avatars - CSS-based retro style
+// Each fighter has unique colors based on their style
+const FIGHTER_PIXEL_ART: Record<string, { bg: string; accent: string; pattern: string }> = {
+  mcgregor: { bg: 'from-green-900 to-black', accent: '#22c55e', pattern: 'striker' },
+  khabib: { bg: 'from-red-950 to-black', accent: '#dc2626', pattern: 'grappler' },
+  jones: { bg: 'from-purple-950 to-black', accent: '#a855f7', pattern: 'complete' },
+  gsp: { bg: 'from-blue-950 to-black', accent: '#3b82f6', pattern: 'wrestler' },
+  adesanya: { bg: 'from-orange-950 to-black', accent: '#f97316', pattern: 'striker' },
+  aldo: { bg: 'from-yellow-950 to-black', accent: '#eab308', pattern: 'striker' },
+  pereira: { bg: 'from-red-900 to-black', accent: '#ef4444', pattern: 'power' },
+  usman: { bg: 'from-emerald-950 to-black', accent: '#10b981', pattern: 'wrestler' },
+  volk: { bg: 'from-cyan-950 to-black', accent: '#06b6d4', pattern: 'complete' },
+  silva: { bg: 'from-pink-950 to-black', accent: '#ec4899', pattern: 'counter' },
+  cejudo: { bg: 'from-indigo-950 to-black', accent: '#6366f1', pattern: 'wrestler' },
+  oliveira: { bg: 'from-lime-950 to-black', accent: '#84cc16', pattern: 'grappler' },
 };
+
+// Pixel Art Avatar Component
+function PixelAvatar({ fighterId, size = 'large' }: { fighterId: string; size?: 'small' | 'large' }) {
+  const art = FIGHTER_PIXEL_ART[fighterId] || FIGHTER_PIXEL_ART.mcgregor;
+  const isSmall = size === 'small';
+  
+  return (
+    <div className={`relative overflow-hidden bg-gradient-to-b ${art.bg} ${isSmall ? 'w-28 h-36' : 'w-full h-full'}`}>
+      {/* Pixel grid pattern */}
+      <div className="absolute inset-0 opacity-30" style={{
+        backgroundImage: `
+          linear-gradient(to right, ${art.accent}20 1px, transparent 1px),
+          linear-gradient(to bottom, ${art.accent}20 1px, transparent 1px)
+        `,
+        backgroundSize: isSmall ? '8px 8px' : '12px 12px'
+      }} />
+      
+      {/* Pixel art silhouette */}
+      <svg 
+        viewBox="0 0 100 140" 
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <pattern id={`grid-${fighterId}`} width="10" height="10" patternUnits="userSpaceOnUse">
+            <rect width="10" height="10" fill="none" stroke={art.accent} strokeOpacity="0.1" strokeWidth="0.5"/>
+          </pattern>
+        </defs>
+        
+        {/* Background grid */}
+        <rect width="100" height="140" fill={`url(#grid-${fighterId})`} />
+        
+        {/* Fighter silhouette based on pattern type */}
+        {art.pattern === 'striker' && (
+          <g fill={art.accent} fillOpacity="0.6">
+            {/* Head */}
+            <rect x="40" y="15" width="20" height="20" />
+            {/* Torso */}
+            <rect x="35" y="35" width="30" height="35" />
+            {/* Gloves up */}
+            <rect x="20" y="40" width="15" height="15" />
+            <rect x="65" y="40" width="15" height="15" />
+            {/* Arms */}
+            <rect x="25" y="50" width="10" height="20" />
+            <rect x="65" y="50" width="10" height="20" />
+            {/* Legs */}
+            <rect x="35" y="70" width="12" height="40" />
+            <rect x="53" y="70" width="12" height="40" />
+          </g>
+        )}
+        
+        {art.pattern === 'grappler' && (
+          <g fill={art.accent} fillOpacity="0.6">
+            {/* Head */}
+            <rect x="42" y="20" width="16" height="16" />
+            {/* Wide torso */}
+            <rect x="30" y="36" width="40" height="30" />
+            {/* Arms ready for grappling */}
+            <rect x="15" y="45" width="15" height="10" />
+            <rect x="70" y="45" width="15" height="10" />
+            <rect x="20" y="50" width="10" height="15" />
+            <rect x="70" y="50" width="10" height="15" />
+            {/* Wide stance */}
+            <rect x="25" y="66" width="15" height="35" />
+            <rect x="60" y="66" width="15" height="35" />
+          </g>
+        )}
+        
+        {art.pattern === 'wrestler' && (
+          <g fill={art.accent} fillOpacity="0.6">
+            {/* Head */}
+            <rect x="40" y="18" width="20" height="18" />
+            {/* Athletic torso */}
+            <rect x="32" y="36" width="36" height="32" />
+            {/* Arms athletic */}
+            <rect x="18" y="42" width="14" height="12" />
+            <rect x="68" y="42" width="14" height="12" />
+            <rect x="22" y="50" width="10" height="18" />
+            <rect x="68" y="50" width="10" height="18" />
+            {/* Legs */}
+            <rect x="32" y="68" width="14" height="38" />
+            <rect x="54" y="68" width="14" height="38" />
+          </g>
+        )}
+        
+        {art.pattern === 'complete' && (
+          <g fill={art.accent} fillOpacity="0.6">
+            {/* Head */}
+            <rect x="41" y="16" width="18" height="18" />
+            {/* Balanced torso */}
+            <rect x="33" y="34" width="34" height="34" />
+            {/* Balanced arms */}
+            <rect x="18" y="40" width="15" height="12" />
+            <rect x="67" y="40" width="15" height="12" />
+            <rect x="22" y="48" width="11" height="20" />
+            <rect x="67" y="48" width="11" height="20" />
+            {/* Balanced legs */}
+            <rect x="33" y="68" width="14" height="38" />
+            <rect x="53" y="68" width="14" height="38" />
+          </g>
+        )}
+        
+        {art.pattern === 'power' && (
+          <g fill={art.accent} fillOpacity="0.6">
+            {/* Head */}
+            <rect x="40" y="15" width="20" height="20" />
+            {/* Muscular torso */}
+            <rect x="28" y="35" width="44" height="32" />
+            {/* Thick arms */}
+            <rect x="12" y="40" width="16" height="14" />
+            <rect x="72" y="40" width="16" height="14" />
+            <rect x="16" y="50" width="12" height="18" />
+            <rect x="72" y="50" width="12" height="18" />
+            {/* Thick legs */}
+            <rect x="30" y="67" width="16" height="40" />
+            <rect x="54" y="67" width="16" height="40" />
+          </g>
+        )}
+        
+        {art.pattern === 'counter' && (
+          <g fill={art.accent} fillOpacity="0.6">
+            {/* Head */}
+            <rect x="42" y="14" width="16" height="18" />
+            {/* Lean torso */}
+            <rect x="36" y="32" width="28" height="36" />
+            {/* Counter stance arms */}
+            <rect x="22" y="38" width="14" height="10" />
+            <rect x="64" y="42" width="14" height="10" />
+            <rect x="26" y="44" width="10" height="22" />
+            <rect x="64" y="48" width="10" height="22" />
+            {/* Lean legs */}
+            <rect x="36" y="68" width="12" height="40" />
+            <rect x="52" y="68" width="12" height="40" />
+          </g>
+        )}
+        
+        {/* Vignette overlay */}
+        <rect width="100" height="140" fill="url(#vignette)" />
+        <defs>
+          <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stopColor="transparent" />
+            <stop offset="100%" stopColor="black" stopOpacity="0.5" />
+          </radialGradient>
+        </defs>
+      </svg>
+      
+      {/* Scanline effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-10" style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, black 2px, black 4px)'
+      }} />
+    </div>
+  );
+}
 
 export function FighterCreator({ onComplete, onCancel }: FighterCreatorProps) {
   const [step, setStep] = useState<Step>(1);
@@ -265,11 +418,7 @@ function StepOneTemplates({
               <div className={`fade-in ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'} transition-all duration-300`}>
                 {/* Fighter Image */}
                 <div className="relative aspect-[3/4] bg-gradient-to-b from-zinc-800 to-black overflow-hidden">
-                  <img
-                    src={FIGHTER_IMAGES[selected.id] || FIGHTER_IMAGES.mcgregor}
-                    alt={selected.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <PixelAvatar fighterId={selected.id} size="large" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" />
 
@@ -340,13 +489,9 @@ function StepOneTemplates({
             >
               {/* Card Layout - Image on left, larger like Figma */}
               <div className="flex h-40">
-                {/* Large Fighter Image */}
-                <div className="w-36 h-full bg-zinc-900 relative overflow-hidden shrink-0">
-                  <img
-                    src={FIGHTER_IMAGES[fighter.id] || FIGHTER_IMAGES.mcgregor}
-                    alt={fighter.name}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                  />
+                {/* Pixel Art Avatar */}
+                <div className="w-36 h-full relative overflow-hidden shrink-0">
+                  <PixelAvatar fighterId={fighter.id} size="small" />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-zinc-950" />
                 </div>
 
@@ -527,11 +672,7 @@ function StepTwoCustomize({
 
             {/* Fighter Image */}
             <div className="relative aspect-square bg-gradient-to-b from-zinc-800 to-black overflow-hidden">
-              <img
-                src={FIGHTER_IMAGES[template.id] || FIGHTER_IMAGES.mcgregor}
-                alt={template.name}
-                className="w-full h-full object-cover opacity-70"
-              />
+              <PixelAvatar fighterId={template.id} size="large" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -672,12 +813,8 @@ function StepThreeFinalize({
 
         {/* Right: Final Preview */}
         <div className="border border-zinc-800 bg-zinc-950 overflow-hidden">
-          <div className="relative aspect-[4/3] bg-gradient-to-b from-zinc-800 to-black overflow-hidden">
-            <img
-              src={FIGHTER_IMAGES[template.id] || FIGHTER_IMAGES.mcgregor}
-              alt={template.name}
-              className="w-full h-full object-cover opacity-60"
-            />
+          <div className="relative aspect-[4/3] overflow-hidden">
+            <PixelAvatar fighterId={template.id} size="large" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
             <div className="absolute bottom-0 left-0 right-0 p-6">
