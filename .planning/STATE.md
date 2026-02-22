@@ -52,7 +52,7 @@
   - ~~"users lose fighters on localStorage clear"~~ — NOT APPLICABLE: no localStorage used, fighters persist in Supabase
   - ~~"duplicate names"~~ — FIXED: POST /api/fighters rejects names already taken (case-insensitive)
   - Remaining: someone with multiple IPs could register many fighters and fight them to inflate win counts
-  - Mitigated by: rate limiting (5 registrations/min, 10 fights/min per IP, in-memory)
+  - Mitigated by: persistent Supabase-backed rate limits (3 fighters/hr, 20 fights/hr per IP — survives cold starts)
 - ~~**HIGH:** Speed control buttons (1x/2x/4x) do nothing~~ — N/A, these controls were deleted with dead code
 - ~~**HIGH:** Skip To End resets the fight instead of fast-forwarding~~ — N/A, deleted with dead code
 
