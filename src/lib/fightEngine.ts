@@ -17,6 +17,7 @@ export interface Fighter {
 export interface FightState {
   winner: string | null;
   method: string | null;
+  round: number;
   log: string[];
   events: FightEvent[];
 }
@@ -53,6 +54,7 @@ export function runFight(f1: Fighter, f2: Fighter): FightState {
   const events: FightEvent[] = [];
   let winner: string | null = null;
   let method: string | null = null;
+  let finishRound = 3;
   
   function addEvent(type: FightEvent['type'], actor: string, target: string, desc: string, damage?: number) {
     events.push({ time: log.length, type, actor, target, description: desc, damage });
@@ -69,6 +71,7 @@ export function runFight(f1: Fighter, f2: Fighter): FightState {
   
   // Run rounds
   for (let round = 1; round <= 3 && !winner; round++) {
+    finishRound = round;
     if (round > 1) {
       log.push('');
       log.push(`[Round ${round}]`);
@@ -191,5 +194,5 @@ export function runFight(f1: Fighter, f2: Fighter): FightState {
     }
   }
   
-  return { winner, method, log, events };
+  return { winner, method, round: finishRound, log, events };
 }

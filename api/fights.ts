@@ -21,6 +21,7 @@ interface Fighter {
 interface FightState {
   winner: string | null;
   method: string | null;
+  round: number;
   log: string[];
 }
 
@@ -39,6 +40,7 @@ function engineRunFight(f1: Fighter, f2: Fighter): FightState {
   const log: string[] = [];
   let winner: string | null = null;
   let method: string | null = null;
+  let finishRound = 3;
 
   log.push(`[Round 1]`);
   log.push(`${a.name} enters the cage`);
@@ -48,6 +50,7 @@ function engineRunFight(f1: Fighter, f2: Fighter): FightState {
   log.push('');
 
   for (let round = 1; round <= 3 && !winner; round++) {
+    finishRound = round;
     if (round > 1) {
       log.push('');
       log.push(`[Round ${round}]`);
@@ -132,7 +135,7 @@ function engineRunFight(f1: Fighter, f2: Fighter): FightState {
     }
   }
 
-  return { winner, method, log };
+  return { winner, method, round: finishRound, log };
 }
 
 const corsHeaders = {
@@ -263,7 +266,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         agent2_id: fighter2_id,
         winner_id: winnerId,
         method: result.method,
-        round: 1,
+        round: result.round,
         fight_data: {
           fighter1: r1.data.name,
           fighter2: r2.data.name,
@@ -311,6 +314,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       winner: result.winner,
       winner_id: winnerId,
       method: result.method,
+      round: result.round,
       fight_log: result.log,
     });
   }

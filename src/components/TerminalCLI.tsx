@@ -583,7 +583,7 @@ export default function TerminalCLI() {
             { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
             result.winner === 'DRAW'
               ? { type: 'fight', text: '  DRAW — PRACTICE FIGHT (no ranking change)' }
-              : { type: 'fight', text: `  WINNER: ${result.winner} by ${result.method} — PRACTICE FIGHT` },
+              : { type: 'fight', text: `  WINNER: ${result.winner} by ${result.method} R${result.round} — PRACTICE FIGHT` },
             { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
             { type: 'system', text: '  CPU fights are practice only — rankings not affected.' },
           ]);
@@ -703,7 +703,7 @@ export default function TerminalCLI() {
           { type: 'output', text: '' },
           { type: 'system', text: '  [RESULT]' },
           { type: 'fight', text: `  WINNER: ${winner}` },
-          { type: 'fight', text: `  METHOD: ${result.method}` },
+          { type: 'fight', text: `  METHOD: ${result.method} R${result.round}` },
         ]);
         await delay(2000);
         setArenaState(null);
