@@ -156,6 +156,11 @@ function parseAction(
       ? { aAction: 'punch', bAction: 'hit', effect: 'punch' }
       : { aAction: 'hit', bAction: 'punch', effect: 'punch' };
   }
+  if (lower.includes('wins by') || lower.includes('wins victory')) {
+    return aAttacks
+      ? { aAction: 'victory', bAction: 'knockdown', effect: null }
+      : { aAction: 'knockdown', bAction: 'victory', effect: null };
+  }
   return { aAction: 'idle', bAction: 'idle', effect: null };
 }
 

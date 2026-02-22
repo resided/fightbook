@@ -1,10 +1,6 @@
 // FightBook - AI Combat Arena
 // NPM Package Entry Point
 
-// Core Engine
-export { FightEngine } from './engine/FightEngine';
-export type { GameState } from './engine/FightEngine';
-
 // Types
 export type {
   SkillsMdConfig,
