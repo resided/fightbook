@@ -201,12 +201,12 @@ function NavButton({ active, onClick, icon, label }: { active: boolean; onClick:
 }
 
 function LeaderboardView() {
-  const [fighters, setFighters] = useState<any[]>([]);
+  const [entries, setEntries] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/fighters')
+    fetch('/api/leaderboard')
       .then(r => r.json())
-      .then(data => setFighters((data || []).sort((a: any, b: any) => (b.win_count || 0) - (a.win_count || 0))));
+      .then(data => setEntries(data || []));
   }, []);
 
   return (
@@ -214,24 +214,24 @@ function LeaderboardView() {
       <h1 className="text-2xl font-bold text-white mb-6">LEADERBOARD</h1>
       <div className="border border-zinc-800 bg-black rounded-lg overflow-hidden">
         <div className="divide-y divide-zinc-800">
-          {fighters.length === 0 ? (
+          {entries.length === 0 ? (
             <div className="p-8 text-center text-zinc-500">
               <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No fights yet. Create fighters and make them battle!</p>
             </div>
-          ) : fighters.map((f, i) => {
-            const total = (f.win_count || 0) + (f.metadata?.losses || 0);
+          ) : entries.map((f) => {
+            const total = f.total_fights || 0;
             const winRate = total > 0 ? Math.round(((f.win_count || 0) / total) * 100) : 0;
             return (
               <div key={f.id} className="flex items-center gap-4 p-4 hover:bg-zinc-900/50 transition-colors">
-                <div className={`text-2xl font-bold w-10 ${i < 3 ? 'text-red-500' : 'text-zinc-600'}`}>{i < 3 ? ['1', '2', '3'][i] : i + 1}</div>
+                <div className={`text-2xl font-bold w-10 ${f.rank <= 3 ? 'text-red-500' : 'text-zinc-600'}`}>{f.rank}</div>
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500/20 to-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-lg">{f.name.charAt(0).toUpperCase()}</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-white truncate">{f.name}</h3>
-                  {f.metadata?.nickname && <p className="text-xs text-zinc-500 truncate">"{f.metadata.nickname}"</p>}
+                  <p className="text-xs text-zinc-500">{f.win_count}W - {f.losses}L ({total} fights)</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-bold text-white">{f.win_count || 0}</div>
+                  <div className="text-xl font-bold text-white">{f.win_count}</div>
                   <div className="text-xs text-zinc-500">WINS</div>
                 </div>
                 <div className="text-right w-16">

@@ -68,8 +68,8 @@ export function FighterCard({ name, xHandle, wins, losses, archetype, stats, onC
       {stats && (
         <div className="space-y-2">
           <StatBar label="Striking" value={stats.striking || 50} color="red" />
-          <StatBar label="Wrestling" value={stats.wrestling || 50} color="blue" />
-          <StatBar label="Cardio" value={stats.cardio || 50} color="green" />
+          <StatBar label="Grappling" value={stats.grappling || stats.wrestling || 50} color="blue" />
+          <StatBar label="Stamina" value={stats.stamina || stats.cardio || 50} color="green" />
         </div>
       )}
 
