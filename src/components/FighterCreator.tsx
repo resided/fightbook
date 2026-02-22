@@ -206,9 +206,22 @@ export function FighterCreator({ onComplete, onCancel }: FighterCreatorProps) {
     setTimeout(() => setIsAnimating(false), 300);
   };
 
+  const STAT_MAX = 95;
+  const STAT_MIN = 40;
+  const STAT_BUDGET = 540; // max total across all 6 stats (prevents all-max builds)
+
   const handleStatChange = (stat: keyof FighterTemplate['stats'], value: number) => {
     if (!customStats) return;
-    setCustomStats({ ...customStats, [stat]: value });
+    const clamped = Math.min(STAT_MAX, Math.max(STAT_MIN, value));
+    const newStats = { ...customStats, [stat]: clamped };
+    const total = Object.values(newStats).reduce((a, b) => a + b, 0);
+    // If over budget, scale down the increase to stay within limit
+    if (total > STAT_BUDGET) {
+      const excess = total - STAT_BUDGET;
+      const adjusted = Math.max(STAT_MIN, clamped - excess);
+      newStats[stat] = adjusted;
+    }
+    setCustomStats(newStats);
   };
 
   const handleComplete = () => {
@@ -649,6 +662,18 @@ function StepTwoCustomize({
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">Customize Stats</h2>
           <p className="text-zinc-500">Adjust attributes to create your unique fighter</p>
+          {(() => {
+            const BUDGET = 540;
+            const total = Object.values(stats).reduce((a, b) => a + b, 0);
+            const remaining = BUDGET - total;
+            return (
+              <div className={`mt-3 flex items-center gap-2 text-xs font-mono px-3 py-2 border ${remaining >= 0 ? 'border-zinc-700 text-zinc-400' : 'border-red-800 text-red-400'}`}>
+                <span className="text-zinc-600">BUDGET:</span>
+                <span className={remaining >= 0 ? 'text-orange-400 font-bold' : 'text-red-400 font-bold'}>{total} / {BUDGET}</span>
+                <span className="text-zinc-600 ml-auto">{remaining >= 0 ? `${remaining} pts remaining` : `${Math.abs(remaining)} pts over limit`}</span>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="space-y-3">
@@ -675,12 +700,12 @@ function StepTwoCustomize({
               <input
                 type="range"
                 min="40"
-                max="99"
+                max="95"
                 value={stats[key]}
                 onChange={(e) => onChange(key, parseInt(e.target.value))}
                 className="w-full"
                 style={{
-                  background: `linear-gradient(to right, #dc2626 0%, #dc2626 ${stats[key]}%, #27272a ${stats[key]}%, #27272a 100%)`,
+                  background: `linear-gradient(to right, #dc2626 0%, #dc2626 ${(stats[key] / 95) * 100}%, #27272a ${(stats[key] / 95) * 100}%, #27272a 100%)`,
                 }}
               />
 
@@ -689,7 +714,7 @@ function StepTwoCustomize({
                 <span className={stats[key] > template.stats[key] ? 'text-green-500' : stats[key] < template.stats[key] ? 'text-red-500' : 'text-zinc-500'}>
                   {stats[key] > template.stats[key] ? '+' : ''}{stats[key] - template.stats[key]}
                 </span>
-                <span>99</span>
+                <span>95</span>
               </div>
             </div>
           ))}
