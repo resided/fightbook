@@ -89,11 +89,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Name must be at least 2 characters' });
     }
 
+    // Snake_case → camelCase normalization for CLI agent submissions
+    const SNAKE_TO_CAMEL: Record<string, string> = {
+      punch_speed: 'punchSpeed', head_movement: 'headMovement', kick_power: 'kickPower',
+      takedown_defense: 'takedownDefense', clinch_control: 'clinchControl',
+      submission_defense: 'submissionDefense', ground_and_pound: 'groundAndPound',
+      guard_passing: 'guardPassing', top_control: 'topControl', bottom_game: 'bottomGame',
+      fight_iq: 'fightIQ', ring_generalship: 'ringGeneralship',
+      finishing_instinct: 'finishingInstinct', defensive_tendency: 'defensiveTendency',
+    };
+    const rawStats = (stats && typeof stats === 'object') ? stats as Record<string, unknown> : {};
+    const normalizedStats: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(rawStats)) {
+      normalizedStats[SNAKE_TO_CAMEL[k] ?? k] = v;
+    }
+
+    // Budget validation: physical stats must be between 20-95
+    const PHYSICAL_STATS = [
+      'striking', 'punchSpeed', 'kickPower', 'headMovement', 'footwork', 'combinations',
+      'wrestling', 'takedownDefense', 'clinchControl', 'trips', 'throws',
+      'submissions', 'submissionDefense', 'groundAndPound', 'guardPassing', 'sweeps',
+      'topControl', 'bottomGame', 'cardio', 'chin', 'recovery', 'strength', 'flexibility',
+      // 6-stat web format
+      'grappling', 'stamina', 'power', 'speed',
+    ];
+    const statErrors: string[] = [];
+    let totalPoints = 0;
+    const BASE = 30;
+    for (const stat of PHYSICAL_STATS) {
+      const val = normalizedStats[stat] ?? rawStats[stat];
+      if (val === undefined) continue;
+      const n = Number(val);
+      if (isNaN(n)) { statErrors.push(`${stat}: must be a number`); continue; }
+      if (n < 20) statErrors.push(`${stat}: minimum is 20 (got ${n})`);
+      if (n > 95) statErrors.push(`${stat}: maximum is 95 (got ${n})`);
+      totalPoints += Math.max(0, n - BASE);
+    }
+    // Only enforce total budget for full 23-stat format (6-stat web format skips this)
+    const statCount = PHYSICAL_STATS.filter(s => (normalizedStats[s] ?? rawStats[s]) !== undefined).length;
+    if (statCount > 6 && totalPoints > 1200) {
+      statErrors.push(`Over budget: ${totalPoints} / 1200 points used`);
+    }
+    if (statErrors.length > 0) {
+      return res.status(400).json({ error: 'Stats validation failed', details: statErrors });
+    }
+
     const { data, error } = await supabase
       .from('fighters')
-      .insert({ 
-        name: sanitizedName, 
-        stats: stats || {}, 
+      .insert({
+        name: sanitizedName,
+        stats: Object.keys(normalizedStats).length > 0 ? normalizedStats : rawStats,
         metadata: metadata || {},
         api_provider: 'openai',
         api_key_encrypted: ''
