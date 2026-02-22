@@ -7,12 +7,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || (import.meta.env as any).SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || (import.meta.env as any).SUPABASE_ANON_KEY;
 
-console.log('Supabase config:', { 
-  hasUrl: !!supabaseUrl, 
-  hasKey: !!supabaseAnonKey,
-  url: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'none'
-});
-
 // Create and export the Supabase client
 // Returns null client if env vars are not set (for development without Supabase)
 export const supabase = (supabaseUrl && supabaseAnonKey)

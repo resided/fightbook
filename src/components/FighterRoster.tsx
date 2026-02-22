@@ -110,7 +110,11 @@ export function FighterRoster() {
                   {(f.win_count || 0)}W - {(f.metadata?.losses || 0)}L
                 </div>
               </div>
-              <button className="p-2 border border-zinc-700 hover:border-orange-500 hover:text-orange-400 transition-colors">
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('fightCommand', { detail: { cmd: `fight ${f.name} vs ` } }))}
+                className="p-2 border border-zinc-700 hover:border-orange-500 hover:text-orange-400 transition-colors"
+                title="Challenge to a fight"
+              >
                 <Swords className="w-4 h-4" />
               </button>
             </div>
