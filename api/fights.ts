@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import { runFight as engineRunFight } from '../src/lib/fightEngine';
+import type { Fighter } from '../src/lib/fightEngine';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,146 +34,40 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-// Fight engine inlined
-function runFight(f1: any, f2: any) {
-  const log: string[] = [];
-  let winner: string | null = null;
-  let method: string | null = null;
-  
-  const a = { ...f1, health: 100, headHealth: 100, stamina: 100 };
-  const b = { ...f2, health: 100, headHealth: 100, stamina: 100 };
-  
-  log.push('=== ROUND 1 ===');
-  log.push(`${a.name} vs ${b.name}`);
-  log.push('');
-  
-  for (let round = 1; round <= 3 && !winner; round++) {
-    if (round > 1) {
-      log.push('');
-      log.push(`=== ROUND ${round} ===`);
-      a.stamina = Math.min(100, a.stamina + 20);
-      b.stamina = Math.min(100, b.stamina + 20);
-    }
-    
-    const exchanges = 6 + Math.floor(Math.random() * 4);
-    
-    for (let i = 0; i < exchanges && !winner; i++) {
-      const [att, def] = Math.random() > 0.5 ? [a, b] : [b, a];
-      
-      // Choose action
-      const strikes = ['jab', 'cross', 'hook', 'uppercut', 'leg kick', 'body kick'];
-      const heavyStrikes = ['head kick', 'overhand right', 'flying knee', 'spinning backfist'];
-      
-      const isTakedown = Math.random() < (att.stats.wrestling || 50) / 200;
-      
-      if (isTakedown) {
-        const success = Math.random() * 100 < ((att.stats.wrestling || 50) - (def.stats.takedownDefense || 50) * 0.5);
-        if (success) {
-          log.push(`>> ${att.name} secures a takedown!`);
-          
-          // Ground action
-          if (Math.random() < 0.35) {
-            const subSuccess = Math.random() * 100 < (att.stats.submissions || 50);
-            if (subSuccess) {
-              const subs = ['rear naked choke', 'guillotine', 'triangle choke', 'armbar'];
-              const sub = subs[Math.floor(Math.random() * subs.length)];
-              log.push(`>> ${att.name} locks in a ${sub.toUpperCase()}!`);
-              log.push(`>> ${def.name} TAPS OUT!`);
-              winner = att.name;
-              method = 'SUB';
-              break;
-            } else {
-              log.push(`${att.name} attempts a submission but ${def.name} escapes`);
-            }
-          } else {
-            // GNP
-            const damage = 8 + Math.random() * 12;
-            def.headHealth -= damage;
-            log.push(`${att.name} lands ground and pound (${Math.round(damage)})`);
-            
-            if (def.headHealth < 20 && Math.random() < 0.3) {
-              log.push(`>> REFEREE STOPS THE FIGHT!`);
-              winner = att.name;
-              method = 'TKO';
-              break;
-            }
-          }
-        } else {
-          log.push(`${att.name} shoots but ${def.name} defends`);
-        }
-      } else {
-        // Striking
-        const isHeavy = Math.random() < 0.25 && att.stats.punchPower > 70;
-        const strike = isHeavy 
-          ? heavyStrikes[Math.floor(Math.random() * heavyStrikes.length)]
-          : strikes[Math.floor(Math.random() * strikes.length)];
-        
-        const accuracy = ((att.stats.striking || 50) + (att.stats.punchSpeed || 50)) / 2;
-        const defense = (def.stats.headMovement || 50);
-        const lands = Math.random() * 100 < (accuracy - defense * 0.3);
-        
-        if (lands) {
-          let damage = isHeavy ? 25 + Math.random() * 15 : 5 + Math.random() * 10;
-          damage *= (att.stats.punchPower || 50) / 50;
-          
-          const isCritical = Math.random() < 0.12;
-          if (isCritical) {
-            damage *= 1.6;
-            log.push(`>> CRITICAL! ${att.name} lands a massive ${strike}! ${def.name} is ROCKED!`);
-          } else if (isHeavy) {
-            log.push(`>> ${att.name} lands a heavy ${strike}! (${Math.round(damage)})`);
-          } else {
-            log.push(`${att.name} lands a ${strike} (${Math.round(damage)})`);
-          }
-          
-          def.headHealth -= damage * 0.7;
-          def.health -= damage * 0.4;
-          
-          // Finish check
-          if (def.headHealth <= 0) {
-            log.push(`>> ${def.name} goes DOWN!`);
-            log.push(`>> ${att.name} follows up... ITS OVER!`);
-            winner = att.name;
-            method = 'KO';
-            break;
-          } else if (def.headHealth < 25 && Math.random() < 0.35) {
-            log.push(`>> ${att.name} is pouring it on! The ref steps in!`);
-            winner = att.name;
-            method = 'TKO';
-            break;
-          }
-        } else {
-          log.push(`${att.name} misses with ${strike}`);
-        }
-      }
-      
-      a.stamina -= 1;
-      b.stamina -= 1;
-    }
-    
-    if (!winner) {
-      log.push(`-- End of Round ${round} --`);
-    }
+// Normalize DB fighter stats to canonical engine Fighter shape
+function toEngineFighter(id: string, name: string, stats: Record<string, any>): Fighter {
+  // Detect 6-stat format (visual creator) by presence of 'grappling'
+  if ('grappling' in stats) {
+    return {
+      id, name,
+      stats: {
+        striking: stats.striking || 50,
+        punchSpeed: stats.speed || 50,
+        punchPower: stats.power || 50,
+        wrestling: stats.grappling || 50,
+        submissions: Math.round((stats.grappling || 50) * 0.8),
+        cardio: stats.stamina || 50,
+        chin: stats.chin || 50,
+        headMovement: Math.round((stats.speed || 50) * 0.8),
+        takedownDefense: Math.round((stats.grappling || 50) * 0.7),
+      },
+    };
   }
-  
-  if (!winner) {
-    log.push('');
-    log.push('=== DECISION ===');
-    const scoreA = (a.health + a.stamina) / 2;
-    const scoreB = (b.health + b.stamina) / 2;
-    
-    if (Math.abs(scoreA - scoreB) < 8) {
-      log.push('Split Decision Draw!');
-      winner = 'DRAW';
-      method = 'DEC';
-    } else {
-      winner = scoreA > scoreB ? a.name : b.name;
-      method = 'DEC';
-      log.push(`${winner} wins by Unanimous Decision!`);
-    }
-  }
-  
-  return { winner, method, log };
+  // Full 23-stat SkillsMdConfig format
+  return {
+    id, name,
+    stats: {
+      striking: stats.striking || 50,
+      punchSpeed: stats.punchSpeed || 50,
+      punchPower: stats.strength || stats.punchPower || 50,
+      wrestling: stats.wrestling || 50,
+      submissions: stats.submissions || 50,
+      cardio: stats.cardio || 50,
+      chin: stats.chin || 50,
+      headMovement: stats.headMovement || 50,
+      takedownDefense: stats.takedownDefense || 50,
+    },
+  };
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -220,8 +116,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (r1.error || !r1.data) return res.status(404).json({ error: 'Fighter 1 not found' });
     if (r2.error || !r2.data) return res.status(404).json({ error: 'Fighter 2 not found' });
 
-    // Run fight simulation
-    const result = runFight(r1.data, r2.data);
+    // Run fight simulation using canonical engine
+    const f1 = toEngineFighter(r1.data.id, r1.data.name, r1.data.stats || {});
+    const f2 = toEngineFighter(r2.data.id, r2.data.name, r2.data.stats || {});
+    const result = engineRunFight(f1, f2);
     const winnerId = result.winner === r1.data.name ? r1.data.id :
                      result.winner === r2.data.name ? r2.data.id : null;
 
@@ -252,6 +150,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { data: w } = await supabase.from('fighters').select('win_count').eq('id', winnerId).single();
       if (w) {
         await supabase.from('fighters').update({ win_count: (w.win_count || 0) + 1 }).eq('id', winnerId);
+      }
+    }
+
+    // Update loser's loss count
+    if (winnerId) {
+      const loserId = winnerId === fighter1_id ? fighter2_id : fighter1_id;
+      const { data: loser } = await supabase.from('fighters').select('metadata').eq('id', loserId).single();
+      if (loser) {
+        const meta = (loser.metadata as any) || {};
+        await supabase.from('fighters').update({
+          metadata: { ...meta, losses: (meta.losses || 0) + 1, totalFights: (meta.totalFights || 0) + 1 }
+        }).eq('id', loserId);
+        // Also update winner's totalFights
+        const { data: win } = await supabase.from('fighters').select('metadata').eq('id', winnerId).single();
+        if (win) {
+          const wmeta = (win.metadata as any) || {};
+          await supabase.from('fighters').update({
+            metadata: { ...wmeta, totalFights: (wmeta.totalFights || 0) + 1 }
+          }).eq('id', winnerId);
+        }
       }
     }
 
