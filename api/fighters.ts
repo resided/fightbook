@@ -99,9 +99,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Sanitize name
     const sanitizedName = name.trim().slice(0, 30).replace(/[<>"']/g, '');
-    
+
     if (sanitizedName.length < 2) {
       return res.status(400).json({ error: 'Name must be at least 2 characters' });
+    }
+
+    // Reject duplicate names (case-insensitive)
+    const { data: existing } = await supabase
+      .from('fighters')
+      .select('id')
+      .ilike('name', sanitizedName)
+      .limit(1)
+      .single();
+    if (existing) {
+      return res.status(409).json({ error: `Fighter name "${sanitizedName}" is already taken` });
     }
 
     // Snake_case → camelCase normalization for CLI agent submissions
