@@ -362,7 +362,7 @@ export function FighterCreator({ onComplete, onCancel }: FighterCreatorProps) {
         )}
       </div>
 
-      {/* Footer Navigation */}
+      {/* Step Navigation */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <button
