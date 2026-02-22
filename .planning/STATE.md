@@ -62,9 +62,14 @@
 | 4 | fix agent onboarding — rewrite SKILL.md, wire FightEngine, add skillsToFighterStats | 2026-02-20 | ca8748b | [4-fix-agent-onboarding-rewrite-skill-md-qu](.planning/quick/4-fix-agent-onboarding-rewrite-skill-md-qu/) |
 | 5 | fix fight history: store full FightState in API fight_data, save CLI fights to Supabase | 2026-02-21 | d8224ba | [5-fix-fight-history-store-full-fightstate-](.planning/quick/5-fix-fight-history-store-full-fightstate-/) |
 | 6 | stat budget enforcement across CLI, API, and docs | 2026-02-21 | 95058f3 | [6-stat-budget-enforcement-across-cli-api-a](.planning/quick/6-stat-budget-enforcement-across-cli-api-a/) |
+| 7 | pixel art fight arena + play-by-play + DexScreener token ticker | 2026-02-22 | b047a54 | N/A |
+| 8 | delete 68 dead files (9376 lines), fix victory pose + log detection | 2026-02-22 | 6749251 | N/A |
+| 9 | fix fight API 500: inline fightEngine to resolve Vercel ESM import error | 2026-02-22 | cdad008 | N/A |
+| 10 | restore stat validation + snake_case normalization in POST /api/fighters | 2026-02-22 | 5596fee | N/A |
+| 11 | cap web creator sliders at 95, add 540-pt budget, fix SKILL.md stale refs | 2026-02-22 | f0d3383 | N/A |
 
 ---
 
-Last activity: 2026-02-21 - Completed quick task 6: Budget enforcement in POST /api/fighters (400 on violation), budget line in fightbook validate (exit 1 on over-budget), budget docs in SKILL.md
+Last activity: 2026-02-22 - Full production verification. All API endpoints healthy. Fight engine working. Stat validation enforced on API + UI.
 
-*State updated: 2026-02-21*
+*State updated: 2026-02-22*
