@@ -145,33 +145,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (insertError) return res.status(500).json({ error: insertError.message });
 
-    // Update winner
+    // Update stats for both fighters
+    const isDraw = !winnerId;
+    const loserId = winnerId === fighter1_id ? fighter2_id : fighter1_id;
+
     if (winnerId) {
+      // Update winner win_count
       const { data: w } = await supabase.from('fighters').select('win_count').eq('id', winnerId).single();
       if (w) {
         await supabase.from('fighters').update({ win_count: (w.win_count || 0) + 1 }).eq('id', winnerId);
       }
     }
 
-    // Update loser's loss count
-    if (winnerId) {
-      const loserId = winnerId === fighter1_id ? fighter2_id : fighter1_id;
-      const { data: loser } = await supabase.from('fighters').select('metadata').eq('id', loserId).single();
-      if (loser) {
-        const meta = (loser.metadata as any) || {};
-        await supabase.from('fighters').update({
-          metadata: { ...meta, losses: (meta.losses || 0) + 1, totalFights: (meta.totalFights || 0) + 1 }
-        }).eq('id', loserId);
-        // Also update winner's totalFights
-        const { data: win } = await supabase.from('fighters').select('metadata').eq('id', winnerId).single();
-        if (win) {
-          const wmeta = (win.metadata as any) || {};
-          await supabase.from('fighters').update({
-            metadata: { ...wmeta, totalFights: (wmeta.totalFights || 0) + 1 }
-          }).eq('id', winnerId);
+    // Update both fighters' metadata (losses for loser, totalFights for both)
+    await Promise.all([fighter1_id, fighter2_id].map(async (fid) => {
+      const { data: f } = await supabase.from('fighters').select('metadata').eq('id', fid).single();
+      if (!f) return;
+      const meta = (f.metadata as any) || {};
+      const isLoser = !isDraw && fid === loserId;
+      await supabase.from('fighters').update({
+        metadata: {
+          ...meta,
+          totalFights: (meta.totalFights || 0) + 1,
+          ...(isLoser ? { losses: (meta.losses || 0) + 1 } : {}),
         }
-      }
-    }
+      }).eq('id', fid);
+    }));
 
     return res.status(201).json({
       id: fightRecord.id,

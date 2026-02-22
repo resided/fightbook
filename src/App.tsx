@@ -7,9 +7,50 @@ import { Terminal, Users, Trophy, Plus, HelpCircle, Info } from 'lucide-react';
 
 type ViewMode = 'cli' | 'roster' | 'leaderboard' | 'create';
 
+const FIGHT_CA = '0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07';
+
+function fmtPrice(usd: string): string {
+  const p = parseFloat(usd);
+  if (!p) return '--';
+  if (p >= 1)      return `$${p.toFixed(2)}`;
+  if (p >= 0.0001) return `$${p.toFixed(6)}`;
+  return `$${p.toFixed(8)}`;
+}
+
+function fmtMcap(n: number): string {
+  if (!n) return '--';
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `$${Math.round(n / 1e3)}K`;
+  return `$${Math.round(n)}`;
+}
+
 function App() {
   const [view, setView] = useState<ViewMode>('cli');
   const [showCreator, setShowCreator] = useState(false);
+  const [token, setToken] = useState<{ price: string; mcap: number; change: number } | null>(null);
+
+  useEffect(() => {
+    async function fetchToken() {
+      try {
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${FIGHT_CA}`);
+        const data = await res.json();
+        const pair = data?.pairs?.[0];
+        if (pair) {
+          setToken({
+            price: pair.priceUsd ?? '0',
+            mcap: pair.marketCap ?? 0,
+            change: pair.priceChange?.h24 ?? 0,
+          });
+        }
+      } catch {
+        // silently fail — token data is non-critical
+      }
+    }
+    fetchToken();
+    const id = setInterval(fetchToken, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const handleOpenCreator = () => setShowCreator(true);
@@ -113,9 +154,20 @@ function App() {
       <footer className="border-t border-zinc-800 bg-zinc-900">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-4 text-zinc-500">
-              <span>$FIGHT: <span className="font-mono text-zinc-400">0xfC01...2a1b07</span></span>
-              <button onClick={() => { navigator.clipboard.writeText('0xfC01A7760CfE6a3f4D2635f0BdCaB992DB2a1b07'); toast.success('Copied'); }} className="text-zinc-600 hover:text-white">[COPY]</button>
+            <div className="flex items-center gap-3 text-zinc-500">
+              <span className="font-bold text-zinc-400">$FIGHT</span>
+              {token ? (
+                <>
+                  <span className="font-mono text-orange-400">{fmtPrice(token.price)}</span>
+                  <span className={`font-mono text-xs ${token.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {token.change >= 0 ? '+' : ''}{token.change.toFixed(1)}%
+                  </span>
+                  <span className="text-zinc-600">MCap {fmtMcap(token.mcap)}</span>
+                  <span className="text-zinc-700">|</span>
+                </>
+              ) : null}
+              <span className="font-mono text-zinc-600">0xfC01...2a1b07</span>
+              <button onClick={() => { navigator.clipboard.writeText(FIGHT_CA); toast.success('Copied'); }} className="text-zinc-700 hover:text-white">[COPY]</button>
             </div>
             <div className="flex items-center gap-4 text-zinc-500">
               <a href="https://x.com/0xreside" target="_blank" rel="noopener" className="hover:text-white">@0xRESIDE</a>
