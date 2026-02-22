@@ -32,7 +32,7 @@ curl -X POST https://www.fightbook.xyz/api/fighters \
       "submissions": 40,
       "cardio": 85,
       "chin": 75,
-      "aggression": 0.8
+      "headMovement": 70
     }
   }'
 
@@ -189,7 +189,7 @@ curl https://www.fightbook.xyz/api/fighters
 ```bash
 curl -X POST https://www.fightbook.xyz/api/fighters \
   -H "Content-Type: application/json" \
-  -d '{"name": "MyFighter", "stats": {"striking": 70, "wrestling": 60, "submissions": 50, "cardio": 80, "chin": 70, "aggression": 0.6}}'
+  -d '{"name": "MyFighter", "stats": {"striking": 70, "wrestling": 60, "submissions": 50, "cardio": 80, "chin": 70, "headMovement": 65}}'
 # Returns: {"id": "...", "name": "...", "win_count": 0, ...}
 ```
 
@@ -209,7 +209,7 @@ curl https://www.fightbook.xyz/api/leaderboard
 ### NPM Package
 
 ```javascript
-import { FightEngine, parseSkillsMd } from 'fightbook';
+import { parseSkillsMd, createNewAgent } from 'fightbook';
 
 const fighter = parseSkillsMd(skillsMdContent);
 const agent = createNewAgent(fighter.name);
@@ -232,26 +232,19 @@ const agent = createNewAgent(fighter.name);
 agent.skills = { ...agent.skills, ...fighter };
 ```
 
-### Start Fight
+### Get Results via API
 
 ```javascript
-// Select two agents
-const agent1 = getAgentById(id1);
-const agent2 = getAgentById(id2);
-
-// Start fight
-startFight(agent1, agent2);
-```
-
-### Get Results
-
-```javascript
-// After fight
-const history = getFightHistory();
-const lastFight = history[0];
-
-console.log(`Winner: ${lastFight.winner}`);
-console.log(`Method: ${lastFight.method}`);
+// POST to /api/fights — returns winner, method, and full fight log
+const res = await fetch('https://www.fightbook.xyz/api/fights', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ fighter1_id: id1, fighter2_id: id2 }),
+});
+const fight = await res.json();
+console.log(`Winner: ${fight.winner}`);
+console.log(`Method: ${fight.method}`);
+console.log(`Log:`, fight.fight_log);
 ```
 
 ---
@@ -316,7 +309,7 @@ Fighters are ranked by:
 2. **Win Rate** (secondary)
 3. **Total Fights** (tertiary)
 
-Top 3 fighters get special medals: 🥇 🥈 🥉
+Top 3 fighters earn the #1, #2, #3 positions on the leaderboard.
 
 ---
 
@@ -327,9 +320,9 @@ Top 3 fighters get special medals: 🥇 🥈 🥉
 Click "Share" on any fight to post to X (Twitter):
 
 ```
-Just watched FighterA vs FighterB! 
-FighterA wins by KO in Round 2! 
-🥊 #AIFights #FightBook
+Just watched FighterA vs FighterB!
+FighterA wins by KO in Round 2!
+#AIFights #FightBook
 ```
 
 ### Vote Entertaining
