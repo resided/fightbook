@@ -1,7 +1,139 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { runFight as engineRunFight } from '../src/lib/fightEngine';
-import type { Fighter } from '../src/lib/fightEngine';
+
+// Fight engine inlined to avoid relative-import resolution issues in Vercel ESM runtime
+interface Fighter {
+  id: string;
+  name: string;
+  stats: {
+    striking: number;
+    punchSpeed: number;
+    punchPower: number;
+    wrestling: number;
+    submissions: number;
+    cardio: number;
+    chin: number;
+    headMovement: number;
+    takedownDefense: number;
+  };
+}
+
+interface FightState {
+  winner: string | null;
+  method: string | null;
+  log: string[];
+}
+
+class FighterState {
+  name: string;
+  health = 100;
+  headHealth = 100;
+  stamina = 100;
+  stats: Fighter['stats'];
+  constructor(f: Fighter) { this.name = f.name; this.stats = f.stats; }
+}
+
+function engineRunFight(f1: Fighter, f2: Fighter): FightState {
+  const a = new FighterState(f1);
+  const b = new FighterState(f2);
+  const log: string[] = [];
+  let winner: string | null = null;
+  let method: string | null = null;
+
+  log.push(`[Round 1]`);
+  log.push(`${a.name} enters the cage`);
+  log.push(`${b.name} enters the cage`);
+  log.push(`The referee gives final instructions`);
+  log.push(`Fight!`);
+  log.push('');
+
+  for (let round = 1; round <= 3 && !winner; round++) {
+    if (round > 1) {
+      log.push('');
+      log.push(`[Round ${round}]`);
+      a.stamina = Math.min(100, a.stamina + 20);
+      b.stamina = Math.min(100, b.stamina + 20);
+    }
+    const exchanges = 6 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < exchanges && !winner; i++) {
+      const [attacker, defender] = Math.random() > 0.5 ? [a, b] : [b, a];
+      const tdChance = attacker.stats.wrestling / 200;
+      const action = Math.random() < tdChance ? 'takedown' : 'strike';
+      if (action === 'strike') {
+        const accuracy = (attacker.stats.striking + attacker.stats.punchSpeed) / 2;
+        const lands = Math.random() * 100 < (accuracy - defender.stats.headMovement * 0.3);
+        if (lands) {
+          const damage = (attacker.stats.punchPower / 5) * (0.8 + Math.random() * 0.4);
+          const isCritical = Math.random() < 0.15;
+          let actualDamage = isCritical ? damage * 1.5 : damage;
+          if (isCritical) {
+            log.push(`[CRITICAL] ${attacker.name} lands a massive shot! ${defender.name} is hurt!`);
+          } else if (damage > 15) {
+            log.push(`${attacker.name} lands a solid strike on ${defender.name}`);
+          } else {
+            log.push(`${attacker.name} connects`);
+          }
+          defender.headHealth -= actualDamage * 0.7;
+          defender.health -= actualDamage * 0.4;
+          attacker.stamina -= 3;
+          if (defender.headHealth < 20 && Math.random() < 0.4) {
+            log.push(`${attacker.name} swarms with punches! The referee stops it!`);
+            winner = attacker.name;
+            method = defender.headHealth <= 0 ? 'KO' : 'TKO';
+            break;
+          }
+        } else {
+          log.push(`${attacker.name} misses`);
+        }
+      } else {
+        const success = Math.random() * 100 < (attacker.stats.wrestling - defender.stats.takedownDefense * 0.5);
+        if (success) {
+          log.push(`${attacker.name} secures a takedown`);
+          if (Math.random() < 0.3) {
+            const subSuccess = Math.random() * 100 < (attacker.stats.submissions - defender.stats.wrestling * 0.3);
+            if (subSuccess) {
+              const subs = ['guillotine', 'rear naked choke', 'armbar', 'triangle'];
+              const sub = subs[Math.floor(Math.random() * subs.length)];
+              log.push(`${attacker.name} locks in a ${sub.toUpperCase()}! ${defender.name} taps!`);
+              winner = attacker.name;
+              method = 'SUB';
+              break;
+            } else {
+              log.push(`${attacker.name} attempts a submission but ${defender.name} escapes`);
+            }
+          } else {
+            const damage = 10 + Math.random() * 10;
+            defender.headHealth -= damage;
+            log.push(`${attacker.name} lands ground and pound`);
+          }
+        } else {
+          log.push(`${attacker.name} shoots but ${defender.name} defends`);
+        }
+      }
+      a.stamina -= 1;
+      b.stamina -= 1;
+    }
+    if (!winner) log.push(`End of Round ${round}`);
+  }
+
+  if (!winner) {
+    log.push('');
+    log.push('[Decision]');
+    const scoreA = (a.health + a.stamina) / 2 + Math.random() * 10;
+    const scoreB = (b.health + b.stamina) / 2 + Math.random() * 10;
+    if (Math.abs(scoreA - scoreB) < 5) {
+      log.push('Split Decision... DRAW!');
+      winner = 'DRAW';
+      method = 'DEC';
+    } else {
+      winner = scoreA > scoreB ? a.name : b.name;
+      method = 'DEC';
+      log.push(`${winner} wins by decision!`);
+    }
+  }
+
+  return { winner, method, log };
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
