@@ -252,10 +252,10 @@ export default function FightArena({ aName, bName, currentAction, round, active 
         {/* Impact effect center */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <span
-            className="text-xl leading-none transition-opacity duration-150"
+            className="text-xs font-bold text-orange-400 terminal-glow-strong tracking-widest transition-opacity duration-150"
             style={{ opacity: effect ? 1 : 0 }}
           >
-            {effect === 'punch' ? '💥' : effect === 'slam' ? '💫' : '💥'}
+            {effect === 'slam' ? '[ SLAM ]' : '[ HIT ]'}
           </span>
         </div>
 

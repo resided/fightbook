@@ -304,13 +304,13 @@ export default function TerminalCLI() {
           
           const lines: Entry[] = [
             { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
-            { type: 'fight', text: '                         🏆 LEADERBOARD 🏆                      ' },
+            { type: 'fight', text: '                           LEADERBOARD                           ' },
             { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
             { type: 'output', text: '' },
           ];
           sorted.forEach((f, i) => {
             const xHandle = (f.metadata?.xHandle as string) || '@unknown';
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${String(i + 1).padStart(2)}.`;
+            const medal = i === 0 ? '#1' : i === 1 ? '#2' : i === 2 ? '#3' : `${String(i + 1).padStart(2)}.`;
             const wins = f.win_count || 0;
             const losses = (f.metadata?.losses as number) || 0;
             const total = wins + losses;

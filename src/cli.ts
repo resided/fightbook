@@ -110,6 +110,72 @@ async function saveCLIFight(fightResult: FightState, fighter1Name: string, fight
   }
 }
 
+// ── CLI fight arena (ASCII, TTY-only) ────────────────────────────────────────
+
+const C = {
+  reset:  '\x1b[0m',
+  bold:   '\x1b[1m',
+  dim:    '\x1b[2m',
+  yellow: '\x1b[33m',
+  red:    '\x1b[31m',
+  cyan:   '\x1b[36m',
+  white:  '\x1b[37m',
+};
+
+const isTTY = Boolean(process.stdout.isTTY);
+const cliDelay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+// Simple stick-figure fighters. A faces right, B faces left.
+const A_IDLE    = ['  o   ', ' /|\\  ', ' / \\  '];
+const B_IDLE    = ['   o  ', '  /|\\', '  / \\'];
+const A_PUNCH   = ['  o      ', ' /|=>>>> ', ' / \\     '];
+const B_PUNCH   = ['      o  ', ' <<<<|=\\ ', '     / \\ '];
+const A_DOWN    = ['        ', ' o-|----', '/       '];
+const B_DOWN    = ['        ', '----|--o', '       \\'];
+const A_VICTORY = ['  \\o/  ', '   |   ', '  / \\  '];
+const B_VICTORY = ['  \\o/  ', '   |   ', '  / \\  '];
+
+function printArenaFrame(
+  aName: string, bName: string,
+  aSprite: string[], bSprite: string[],
+  label: string,
+) {
+  if (!isTTY) return;
+  const W = 52;
+  const border = '-'.repeat(W);
+  const mid = label.padStart(Math.floor((W + label.length) / 2)).padEnd(W);
+  process.stdout.write(`\n${C.dim}  ${border}${C.reset}\n`);
+  process.stdout.write(`  ${C.dim}|${C.reset} ${C.yellow}${C.bold}${aName.slice(0, 14).padEnd(14)}${C.reset}  ${C.dim}${mid.slice(16, W - 16)}${C.reset}  ${C.red}${C.bold}${bName.slice(0, 14).padStart(14)}${C.reset} ${C.dim}|${C.reset}\n`);
+  process.stdout.write(`  ${C.dim}|${C.reset}${''.padEnd(W)}${C.dim}|${C.reset}\n`);
+  const rows = Math.max(aSprite.length, bSprite.length);
+  const GAP = W - 10; // space between sprites
+  for (let i = 0; i < rows; i++) {
+    const aLine = (aSprite[i] || '').padEnd(9);
+    const bLine = (bSprite[i] || '').padStart(9);
+    process.stdout.write(`  ${C.dim}|${C.reset} ${C.yellow}${aLine}${C.reset}${' '.repeat(GAP - 10)}${C.red}${bLine}${C.reset} ${C.dim}|${C.reset}\n`);
+  }
+  process.stdout.write(`  ${C.dim}|${C.reset}${''.padEnd(W)}${C.dim}|${C.reset}\n`);
+  process.stdout.write(`  ${C.dim}${border}${C.reset}\n\n`);
+}
+
+function printImpact(text: string) {
+  if (!isTTY) return;
+  process.stdout.write(`  ${C.bold}${C.yellow}*** ${text} ***${C.reset}\n`);
+}
+
+function printWinnerBanner(winner: string, method: string) {
+  const W = 52;
+  const border = '='.repeat(W);
+  const line1 = `WINNER: ${winner}`.padStart(Math.floor((W + 8 + winner.length) / 2)).padEnd(W);
+  const line2 = `by ${method}`.padStart(Math.floor((W + 3 + method.length) / 2)).padEnd(W);
+  process.stdout.write(`\n  ${C.bold}${C.yellow}${border}${C.reset}\n`);
+  process.stdout.write(`  ${C.bold}${C.yellow}${line1}${C.reset}\n`);
+  process.stdout.write(`  ${C.bold}${C.yellow}${line2}${C.reset}\n`);
+  process.stdout.write(`  ${C.bold}${C.yellow}${border}${C.reset}\n\n`);
+}
+
+// ── runFight ──────────────────────────────────────────────────────────────────
+
 async function runFight(file1: string, file2: string) {
   if (!fs.existsSync(file1)) { console.error(`File not found: ${file1}`); process.exit(1); }
   if (!fs.existsSync(file2)) { console.error(`File not found: ${file2}`); process.exit(1); }
@@ -149,16 +215,47 @@ async function runFight(file1: string, file2: string) {
     },
   };
 
-  console.log(`\n${f1.name} vs ${f2.name}\n`);
   const result = engineRunFight(f1, f2);
-  result.log.forEach(line => console.log(line));
-  console.log('\n' + '='.repeat(40));
-  if (result.winner === 'DRAW') {
-    console.log('DRAW');
-  } else {
-    console.log(`WINNER: ${result.winner} by ${result.method}`);
+
+  // Opening banner
+  printArenaFrame(f1.name, f2.name, A_IDLE, B_IDLE, '-- FIGHT --');
+
+  // Play-by-play with delays (TTY) or plain dump (piped)
+  for (const line of result.log) {
+    const roundMatch = line.match(/^\[Round (\d+)\]/);
+    const isRound = !!roundMatch;
+    const isEnd = line.startsWith('End of Round') || line.startsWith('[Decision]');
+    const isCritical = line.startsWith('[CRITICAL]') || line.includes('referee stops') || line.includes('taps');
+
+    if (isRound) {
+      const r = parseInt(roundMatch![1]);
+      printArenaFrame(f1.name, f2.name, A_IDLE, B_IDLE, `-- ROUND ${r} --`);
+      console.log(line);
+      await cliDelay(isTTY ? 400 : 0);
+    } else if (isCritical) {
+      console.log(line);
+      if (isTTY) {
+        printImpact(line.startsWith('[CRITICAL]') ? 'CRITICAL HIT' : 'FIGHT OVER');
+        await cliDelay(600);
+      }
+    } else if (isEnd) {
+      console.log(line);
+      await cliDelay(isTTY ? 300 : 0);
+    } else {
+      console.log(line);
+      await cliDelay(isTTY ? 120 : 0);
+    }
   }
-  console.log('='.repeat(40) + '\n');
+
+  // Winner
+  if (result.winner === 'DRAW') {
+    printArenaFrame(f1.name, f2.name, A_IDLE, B_IDLE, '-- DRAW --');
+    console.log('\n  DRAW\n');
+  } else {
+    const aWon = result.winner === f1.name;
+    printArenaFrame(f1.name, f2.name, aWon ? A_VICTORY : A_DOWN, aWon ? B_DOWN : B_VICTORY, '-- FINAL --');
+    printWinnerBanner(result.winner, result.method || 'DEC');
+  }
 
   await saveCLIFight({ winner: result.winner, method: result.method, endRound: 3, currentRound: 3 } as any, f1.name, f2.name);
 }
