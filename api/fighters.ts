@@ -125,7 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (n > 95) statErrors.push(`${stat}: maximum is 95 (got ${n})`);
       totalPoints += Math.max(0, n - BASE);
     }
-    // Only enforce total budget for full 23-stat format (6-stat web format skips this)
+    // Full 23-stat CLI format: enforce 1200-point budget above base-30
     const statCount = PHYSICAL_STATS.filter(s => (normalizedStats[s] ?? rawStats[s]) !== undefined).length;
     if (statCount > 6 && totalPoints > 1200) {
       statErrors.push(`Over budget: ${totalPoints} / 1200 points used`);
