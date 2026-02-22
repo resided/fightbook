@@ -28,6 +28,7 @@ function fmtMcap(n: number): string {
 function App() {
   const [view, setView] = useState<ViewMode>('cli');
   const [showCreator, setShowCreator] = useState(false);
+  const [pendingCommand, setPendingCommand] = useState<string | null>(null);
   const [token, setToken] = useState<{ price: string; mcap: number; change: number } | null>(null);
 
   useEffect(() => {
@@ -56,6 +57,16 @@ function App() {
     const handleOpenCreator = () => setShowCreator(true);
     window.addEventListener('openFighterCreator', handleOpenCreator);
     return () => window.removeEventListener('openFighterCreator', handleOpenCreator);
+  }, []);
+
+  useEffect(() => {
+    const handleFightCommand = (e: Event) => {
+      const cmd = (e as CustomEvent).detail?.cmd;
+      setView('cli');
+      if (cmd) setPendingCommand(cmd);
+    };
+    window.addEventListener('fightCommand', handleFightCommand);
+    return () => window.removeEventListener('fightCommand', handleFightCommand);
   }, []);
 
   const handleCreateFighter = async (fighter: {
@@ -127,7 +138,7 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden relative">
-        {view === 'cli' && <TerminalCLI />}
+        {view === 'cli' && <TerminalCLI initialCommand={pendingCommand} onCommandConsumed={() => setPendingCommand(null)} />}
         {view === 'roster' && (
           <div className="h-full p-6 max-w-7xl mx-auto overflow-y-auto">
             <div className="flex items-center justify-between mb-6">

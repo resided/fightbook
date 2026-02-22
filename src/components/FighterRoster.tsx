@@ -85,10 +85,7 @@ export function FighterRoster() {
               losses={f.metadata?.losses || 0}
               archetype={detectArchetype(f.stats)}
               stats={f.stats}
-              onClick={() => {
-                // Could trigger 'stats <name>' command in terminal
-                console.log('View stats for', f.name);
-              }}
+              onClick={() => {}}
             />
           ))}
         </div>
@@ -96,8 +93,8 @@ export function FighterRoster() {
         <div className="divide-y divide-zinc-800 max-h-[400px] overflow-y-auto">
           {sortedByWins.map((f, i) => (
             <div key={f.id} className="flex items-center gap-4 p-4 hover:bg-zinc-900/30 transition-colors">
-              <div className="text-2xl font-bold text-zinc-600 w-8">
-                {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+              <div className={`text-2xl font-bold w-8 ${i < 3 ? 'text-red-500' : 'text-zinc-600'}`}>
+                {i < 3 ? ['1', '2', '3'][i] : `#${i + 1}`}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3">

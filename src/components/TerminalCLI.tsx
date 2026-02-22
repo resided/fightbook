@@ -101,7 +101,7 @@ interface LeaderboardEntry {
   losses: number;
 }
 
-export default function TerminalCLI() {
+export default function TerminalCLI({ initialCommand, onCommandConsumed }: { initialCommand?: string | null; onCommandConsumed?: () => void } = {}) {
   const [history, setHistory] = useState<Entry[]>(
     WELCOME.map(t => ({ type: 'system' as const, text: t }))
   );
@@ -129,6 +129,14 @@ export default function TerminalCLI() {
     window.addEventListener('fightCommand', handler);
     return () => window.removeEventListener('fightCommand', handler);
   }, []);
+
+  useEffect(() => {
+    if (initialCommand) {
+      setInput(initialCommand);
+      inputRef.current?.focus();
+      onCommandConsumed?.();
+    }
+  }, [initialCommand]);
 
   const add = useCallback((entries: Entry[]) => {
     setHistory(prev => [...prev, ...entries]);
