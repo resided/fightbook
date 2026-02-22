@@ -70,6 +70,8 @@ const ARCHETYPES: Record<string, Record<string, number>> = {
   },
 };
 
+const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
 const bar = (val: number): string => {
   const filled = Math.round(val / 5);
   return '█'.repeat(filled) + '░'.repeat(20 - filled);
@@ -537,7 +539,25 @@ export default function TerminalCLI() {
           ]);
 
           const result = runLocalFight(f1, f2);
-          result.log.forEach(line => add([{ type: 'output', text: `  ${line}` }]));
+          for (const line of result.log) {
+            const isRound = line.startsWith('===');
+            const isEnd = line.startsWith('--');
+            const isCritical = line.startsWith('>>');
+            if (isRound) {
+              await delay(600);
+              add([{ type: 'system', text: `  ${line}` }]);
+              await delay(200);
+            } else if (isCritical) {
+              add([{ type: 'fight', text: `  ${line}` }]);
+              await delay(400);
+            } else if (isEnd) {
+              add([{ type: 'system', text: `  ${line}` }]);
+              await delay(400);
+            } else {
+              add([{ type: 'output', text: `  ${line}` }]);
+              await delay(line.trim() ? 160 : 60);
+            }
+          }
 
           add([
             { type: 'output', text: '' },
@@ -617,32 +637,37 @@ export default function TerminalCLI() {
           return;
         }
 
-        const lines: Entry[] = [];
-
-        // Show fight log
+        // Play-by-play reveal
         if (result.fight_log?.length) {
-          result.fight_log.forEach((l: string) => {
+          for (const l of result.fight_log) {
             const isCritical = l.startsWith('>>');
             const isRound = l.startsWith('===');
             const isEnd = l.startsWith('--');
-            
-            if (isCritical) {
-              lines.push({ type: 'fight', text: `  ${l}` });
-            } else if (isRound || isEnd) {
-              lines.push({ type: 'system', text: `  ${l}` });
+            if (isRound) {
+              await delay(600);
+              add([{ type: 'system', text: `  ${l}` }]);
+              await delay(200);
+            } else if (isCritical) {
+              add([{ type: 'fight', text: `  ${l}` }]);
+              await delay(400);
+            } else if (isEnd) {
+              add([{ type: 'system', text: `  ${l}` }]);
+              await delay(400);
             } else {
-              lines.push({ type: 'output', text: `  ${l}` });
+              add([{ type: 'output', text: `  ${l}` }]);
+              await delay(l.trim() ? 160 : 60);
             }
-          });
+          }
         }
 
         // Final result
-        lines.push({ type: 'output', text: '' });
-        lines.push({ type: 'system', text: '  [RESULT]' });
-        lines.push({ type: 'fight', text: `  WINNER: ${result.winner || 'DRAW'}` });
-        lines.push({ type: 'fight', text: `  METHOD: ${result.method}` });
-
-        add(lines);
+        await delay(600);
+        add([
+          { type: 'output', text: '' },
+          { type: 'system', text: '  [RESULT]' },
+          { type: 'fight', text: `  WINNER: ${result.winner || 'DRAW'}` },
+          { type: 'fight', text: `  METHOD: ${result.method}` },
+        ]);
       } catch (e: any) {
         add([{ type: 'error', text: `  Fight error: ${e.message}` }]);
       }
