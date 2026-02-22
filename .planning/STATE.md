@@ -49,8 +49,8 @@
 
 - **CRITICAL:** API keys stored as base64 (not encrypted) — user keys are effectively public
 - **OPEN:** No authentication — users lose fighters on localStorage clear, leaderboard spammable (deferred — full phase)
-- **HIGH:** Speed control buttons (1x/2x/4x) do nothing — speed state not passed to FightEngine
-- **HIGH:** Skip To End resets the fight instead of fast-forwarding
+- ~~**HIGH:** Speed control buttons (1x/2x/4x) do nothing~~ — N/A, these controls were deleted with dead code
+- ~~**HIGH:** Skip To End resets the fight instead of fast-forwarding~~ — N/A, deleted with dead code
 
 ### Quick Tasks Completed
 
@@ -67,9 +67,13 @@
 | 9 | fix fight API 500: inline fightEngine to resolve Vercel ESM import error | 2026-02-22 | cdad008 | N/A |
 | 10 | restore stat validation + snake_case normalization in POST /api/fighters | 2026-02-22 | 5596fee | N/A |
 | 11 | cap web creator sliders at 95, add 540-pt budget, fix SKILL.md stale refs | 2026-02-22 | f0d3383 | N/A |
+| 12 | add DELETE /api/fighters (admin secret), purge 7 test fighters from prod DB | 2026-02-22 | ab3f501 | N/A |
+| 13 | fix fight round tracking: engine returns actual round, stored in DB + API response | 2026-02-22 | 3a96e66 | N/A |
+| 14 | fix FighterRoster: emoji medals → text, dead console.log, fight button wires to CLI | 2026-02-22 | 4c28a6b | N/A |
+| 15 | FighterCard 6-stat format support; LeaderboardView uses /api/leaderboard | 2026-02-22 | 403262b | N/A |
 
 ---
 
-Last activity: 2026-02-22 - Full production verification. All API endpoints healthy. Fight engine working. Stat validation enforced on API + UI.
+Last activity: 2026-02-22 - Session 2 production hardening. Cleaned prod DB, fixed round tracking, wired roster fight button, fixed stat display for web-created fighters.
 
 *State updated: 2026-02-22*
