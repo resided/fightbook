@@ -45,6 +45,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(204).end();
   }
 
+  const supabase = getSupabase();
+  if (!supabase) {
+    return res.status(503).json({ error: 'Database not configured' });
+  }
+
   if (req.method === 'DELETE') {
     const authHeader = req.headers['authorization'] || '';
     const adminSecret = process.env.ADMIN_SECRET;
@@ -55,14 +60,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ error: 'id is required' });
     }
-    const { error } = await supabase!.from('fighters').delete().eq('id', id);
+    const { error } = await supabase.from('fighters').delete().eq('id', id);
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json({ deleted: id });
-  }
-
-  const supabase = getSupabase();
-  if (!supabase) {
-    return res.status(503).json({ error: 'Database not configured' });
   }
 
   if (req.method === 'GET') {
