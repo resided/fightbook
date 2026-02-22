@@ -1,5 +1,5 @@
 // FightBook - Agent Adapter
-// Converts Partial<SkillsMdConfig> to FighterStats for use with FightEngine
+// Converts Partial<SkillsMdConfig> to FighterStats for display or simulation
 
 import type { SkillsMdConfig } from '@/types/agent';
 import type { FighterStats } from '@/types/fight';
@@ -7,12 +7,11 @@ import { DEFAULT_SKILLS } from '@/types/agent';
 
 /**
  * Convert a Partial<SkillsMdConfig> (e.g. from parseSkillsMd or an API request)
- * to FighterStats suitable for passing directly to the FightEngine constructor.
+ * to FighterStats for use in fight simulations or display.
  *
  * Example:
- *   import { parseSkillsMd, skillsToFighterStats, FightEngine } from 'fightbook';
+ *   import { parseSkillsMd, skillsToFighterStats } from 'fightbook';
  *   const stats = skillsToFighterStats(parseSkillsMd(content));
- *   const engine = new FightEngine(stats, opponentStats, { onFightEnd: ... });
  */
 export function skillsToFighterStats(partial: Partial<SkillsMdConfig>, fallbackName?: string): FighterStats {
   const s = { ...DEFAULT_SKILLS, ...partial };
