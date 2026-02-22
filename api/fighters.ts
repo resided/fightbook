@@ -80,15 +80,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'POST') {
-    // Rate limit: 5 fighters per minute per IP
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    const rateLimit = checkRateLimit(`fighters:${clientIp}`, 5, 60000);
-    
-    if (!rateLimit.allowed) {
-      return res.status(429).json({ 
-        error: 'Rate limit exceeded. Try again in a minute.',
-        retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000)
-      });
+    // Rate limit: 3 fighters per hour per IP — checked against DB (persistent across cold starts)
+    const rawIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+    const clientIp = Array.isArray(rawIp) ? rawIp[0] : String(rawIp).split(',')[0].trim();
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: recentCount } = await supabase
+      .from('fighters')
+      .select('id', { count: 'exact', head: true })
+      .eq('metadata->>creator_ip', clientIp)
+      .gte('created_at', oneHourAgo);
+    if ((recentCount ?? 0) >= 3) {
+      return res.status(429).json({ error: 'Rate limit: max 3 fighters per hour. Try again later.' });
     }
 
     const { name, stats, metadata } = req.body || {};
@@ -165,7 +167,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .insert({
         name: sanitizedName,
         stats: Object.keys(normalizedStats).length > 0 ? normalizedStats : rawStats,
-        metadata: metadata || {},
+        metadata: { ...(metadata || {}), creator_ip: clientIp },
         api_provider: 'openai',
         api_key_encrypted: ''
       })

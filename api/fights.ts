@@ -232,10 +232,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'POST') {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    const limit = checkRateLimit(`fights:${ip}`, 10, 60000);
-    if (!limit.allowed) {
-      return res.status(429).json({ error: 'Rate limit exceeded' });
+    // Rate limit: 20 fights per hour per IP — checked against DB
+    const rawIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+    const ip = Array.isArray(rawIp) ? rawIp[0] : String(rawIp).split(',')[0].trim();
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: fightCount } = await supabase
+      .from('fights')
+      .select('id', { count: 'exact', head: true })
+      .eq('fight_data->>requester_ip', ip)
+      .gte('created_at', oneHourAgo);
+    if ((fightCount ?? 0) >= 20) {
+      return res.status(429).json({ error: 'Rate limit: max 20 fights per hour. Try again later.' });
     }
 
     const { fighter1_id, fighter2_id } = req.body || {};
@@ -273,6 +280,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           winner: result.winner,
           method: result.method,
           log: result.log,
+          requester_ip: ip,
         }
       })
       .select()
