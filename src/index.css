@@ -286,3 +286,46 @@ input:focus, textarea:focus, select:focus {
 .grid-line {
   @apply border-b border-zinc-900;
 }
+
+/* ─── Pixel Fight Arena animations ──────────────────────────── */
+
+/* Fighter A (left side) punches toward the right */
+@keyframes arena-punch {
+  0%, 100% { transform: translateX(0); }
+  35%       { transform: translateX(10px); }
+}
+/* Fighter B (right side, mirrored) punches toward the left */
+@keyframes arena-punch-mirror {
+  0%, 100% { transform: translateX(0); }
+  35%       { transform: translateX(-10px); }
+}
+/* Fighter A recoils left when hit */
+@keyframes arena-hit {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-10px); }
+  55%       { transform: translateX(-5px); }
+}
+/* Fighter B recoils right when hit */
+@keyframes arena-hit-mirror {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(10px); }
+  55%       { transform: translateX(5px); }
+}
+/* Knocked down — tip over and hold */
+@keyframes arena-knockdown {
+  0%   { transform: rotate(0deg) translateY(0); }
+  60%  { transform: rotate(85deg) translateY(4px); }
+  100% { transform: rotate(90deg) translateY(4px); }
+}
+/* Victory bounce */
+@keyframes arena-victory {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-7px); }
+}
+
+.arena-punch        { animation: arena-punch        0.4s ease-out; }
+.arena-punch-mirror { animation: arena-punch-mirror  0.4s ease-out; }
+.arena-hit          { animation: arena-hit           0.5s ease-out; }
+.arena-hit-mirror   { animation: arena-hit-mirror    0.5s ease-out; }
+.arena-knockdown    { animation: arena-knockdown     0.6s ease-in forwards; }
+.arena-victory      { animation: arena-victory       0.7s ease-in-out infinite; }

@@ -5,6 +5,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { runFight as runLocalFight } from '@/lib/fightEngine';
 import type { Fighter as EngineFighter } from '@/lib/fightEngine';
+import FightArena from '@/components/FightArena';
 
 const API = '/api';
 
@@ -109,6 +110,9 @@ export default function TerminalCLI() {
   const [historyIdx, setHistoryIdx] = useState(-1);
   const [processing, setProcessing] = useState(false);
   const [registerMode, setRegisterMode] = useState<null | { step: string; data: Record<string, any> }>(null);
+  const [arenaState, setArenaState] = useState<{
+    aName: string; bName: string; round: number; currentAction: string;
+  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -539,26 +543,41 @@ export default function TerminalCLI() {
           ]);
 
           const result = runLocalFight(f1, f2);
+
+          // Activate arena
+          setArenaState({ aName: f1.name, bName: f2.name, round: 1, currentAction: '' });
+
           for (const line of result.log) {
-            const isRound = line.startsWith('===');
-            const isEnd = line.startsWith('--');
-            const isCritical = line.startsWith('>>');
+            const roundMatch = line.match(/^\[Round (\d+)\]/);
+            const isRound = !!roundMatch;
+            const isEnd = line.startsWith('End of Round') || line.startsWith('[Decision]');
+            const isCritical = line.startsWith('[CRITICAL]') || line.includes('referee stops');
+
             if (isRound) {
+              const r = parseInt(roundMatch![1]);
+              setArenaState(prev => prev ? { ...prev, round: r, currentAction: '' } : prev);
               await delay(600);
               add([{ type: 'system', text: `  ${line}` }]);
               await delay(200);
             } else if (isCritical) {
+              setArenaState(prev => prev ? { ...prev, currentAction: line } : prev);
               add([{ type: 'fight', text: `  ${line}` }]);
-              await delay(400);
+              await delay(500);
             } else if (isEnd) {
+              setArenaState(prev => prev ? { ...prev, currentAction: '' } : prev);
               add([{ type: 'system', text: `  ${line}` }]);
               await delay(400);
             } else {
+              setArenaState(prev => prev ? { ...prev, currentAction: line } : prev);
               add([{ type: 'output', text: `  ${line}` }]);
               await delay(line.trim() ? 160 : 60);
             }
           }
 
+          await delay(600);
+          setArenaState(prev => prev
+            ? { ...prev, currentAction: result.winner !== 'DRAW' ? `${result.winner} wins victory` : '' }
+            : prev);
           add([
             { type: 'output', text: '' },
             { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
@@ -568,7 +587,10 @@ export default function TerminalCLI() {
             { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
             { type: 'system', text: '  CPU fights are practice only — rankings not affected.' },
           ]);
+          await delay(2000);
+          setArenaState(null);
         } catch (e: any) {
+          setArenaState(null);
           add([{ type: 'error', text: `  Fight error: ${e.message}` }]);
         }
         setProcessing(false);
@@ -624,6 +646,9 @@ export default function TerminalCLI() {
           { type: 'output', text: '' },
         ]);
 
+        // Activate arena before API call
+        setArenaState({ aName: fA.name, bName: fB.name, round: 1, currentAction: '' });
+
         const fightRes = await fetch(`${API}/fights`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -632,43 +657,58 @@ export default function TerminalCLI() {
         const result = await fightRes.json();
 
         if (!fightRes.ok) {
+          setArenaState(null);
           add([{ type: 'error', text: `  Fight failed: ${result.error || 'Unknown error'}` }]);
           setProcessing(false);
           return;
         }
 
-        // Play-by-play reveal
+        // Play-by-play reveal with correct engine log format detection
         if (result.fight_log?.length) {
           for (const l of result.fight_log) {
-            const isCritical = l.startsWith('>>');
-            const isRound = l.startsWith('===');
-            const isEnd = l.startsWith('--');
+            const roundMatch = (l as string).match(/^\[Round (\d+)\]/);
+            const isRound = !!roundMatch;
+            const isEnd = l.startsWith('End of Round') || l.startsWith('[Decision]');
+            const isCritical = l.startsWith('[CRITICAL]') || l.includes('referee stops');
+
             if (isRound) {
+              const r = parseInt(roundMatch![1]);
+              setArenaState(prev => prev ? { ...prev, round: r, currentAction: '' } : prev);
               await delay(600);
               add([{ type: 'system', text: `  ${l}` }]);
               await delay(200);
             } else if (isCritical) {
+              setArenaState(prev => prev ? { ...prev, currentAction: l } : prev);
               add([{ type: 'fight', text: `  ${l}` }]);
-              await delay(400);
+              await delay(500);
             } else if (isEnd) {
+              setArenaState(prev => prev ? { ...prev, currentAction: '' } : prev);
               add([{ type: 'system', text: `  ${l}` }]);
               await delay(400);
             } else {
+              setArenaState(prev => prev ? { ...prev, currentAction: l } : prev);
               add([{ type: 'output', text: `  ${l}` }]);
-              await delay(l.trim() ? 160 : 60);
+              await delay((l as string).trim() ? 160 : 60);
             }
           }
         }
 
-        // Final result
+        // Final result — show victory pose then fade arena
         await delay(600);
+        const winner = result.winner || 'DRAW';
+        if (winner !== 'DRAW') {
+          setArenaState(prev => prev ? { ...prev, currentAction: `${winner} wins victory` } : prev);
+        }
         add([
           { type: 'output', text: '' },
           { type: 'system', text: '  [RESULT]' },
-          { type: 'fight', text: `  WINNER: ${result.winner || 'DRAW'}` },
+          { type: 'fight', text: `  WINNER: ${winner}` },
           { type: 'fight', text: `  METHOD: ${result.method}` },
         ]);
+        await delay(2000);
+        setArenaState(null);
       } catch (e: any) {
+        setArenaState(null);
         add([{ type: 'error', text: `  Fight error: ${e.message}` }]);
       }
       setProcessing(false);
@@ -833,6 +873,17 @@ export default function TerminalCLI() {
       className="h-full bg-black flex flex-col scanline-overlay crt-flicker"
       onClick={() => inputRef.current?.focus()}
     >
+      {/* Pixel arena — shown during fights, sticky above scroll */}
+      {arenaState && (
+        <FightArena
+          aName={arenaState.aName}
+          bName={arenaState.bName}
+          currentAction={arenaState.currentAction}
+          round={arenaState.round}
+          active={true}
+        />
+      )}
+
       {/* Terminal body -- no header since App provides nav */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 pb-0 font-mono">
         {history.map((entry, i) => (
