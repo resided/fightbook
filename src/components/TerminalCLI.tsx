@@ -3,6 +3,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { runFight as runLocalFight } from '@/lib/fightEngine';
+import type { Fighter as EngineFighter } from '@/lib/fightEngine';
 
 const API = '/api';
 
@@ -112,6 +114,16 @@ export default function TerminalCLI() {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [history]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const cmd = (e as CustomEvent).detail?.cmd;
+      if (cmd) setInput(cmd);
+      inputRef.current?.focus();
+    };
+    window.addEventListener('fightCommand', handler);
+    return () => window.removeEventListener('fightCommand', handler);
+  }, []);
+
   const add = useCallback((entries: Entry[]) => {
     setHistory(prev => [...prev, ...entries]);
   }, []);
@@ -131,6 +143,7 @@ export default function TerminalCLI() {
         { type: 'output', text: '  register       Create a new fighter (name → X handle → archetype)' },
         { type: 'output', text: '  fighters       List all fighters in the arena' },
         { type: 'output', text: '  fight a vs b   Run a fight between two fighters' },
+        { type: 'output', text: '  fight a vs cpu [easy|medium|hard]  Fight a CPU opponent (practice)' },
         { type: 'output', text: '  random         Quick fight with random matchup' },
         { type: 'output', text: '  leaderboard    Show rankings by wins' },
         { type: 'output', text: '  stats <name>   View detailed fighter stats' },
@@ -461,6 +474,87 @@ export default function TerminalCLI() {
     }
 
     if (lower.startsWith('fight ') || lower === 'random') {
+      // CPU fight branch - check if "vs cpu" pattern
+      const cpuMatch = lower.match(/^fight\s+(.+?)\s+vs\s+cpu(\s+(easy|medium|hard))?$/);
+      if (cpuMatch) {
+        const fighterName = cpuMatch[1].trim();
+        const difficulty = (cpuMatch[3] || 'medium') as 'easy' | 'medium' | 'hard';
+
+        const diffMultiplier = { easy: 0.65, medium: 0.85, hard: 1.05 }[difficulty];
+
+        setProcessing(true);
+        add([{ type: 'loading', text: `  Setting up CPU opponent (${difficulty})...` }]);
+
+        try {
+          const res = await fetch(`${API}/fighters`);
+          const all: Fighter[] = await res.json();
+          const fighter = all.find((x: Fighter) => x.name.toLowerCase().includes(fighterName.toLowerCase()));
+
+          if (!fighter) {
+            add([{ type: 'error', text: `  Fighter "${fighterName}" not found. Type 'fighters' to see roster.` }]);
+            setProcessing(false);
+            return;
+          }
+
+          const raw = (fighter as any).stats || {};
+          const getS = (key: string, fallback = 50) => Math.round(((raw[key] || fallback)) * diffMultiplier);
+
+          const f1: EngineFighter = {
+            id: fighter.id,
+            name: fighter.name,
+            stats: 'grappling' in raw ? {
+              striking: raw.striking || 50, punchSpeed: raw.speed || 50, punchPower: raw.power || 50,
+              wrestling: raw.grappling || 50, submissions: Math.round((raw.grappling || 50) * 0.8),
+              cardio: raw.stamina || 50, chin: raw.chin || 50,
+              headMovement: Math.round((raw.speed || 50) * 0.8), takedownDefense: Math.round((raw.grappling || 50) * 0.7),
+            } : {
+              striking: raw.striking || 50, punchSpeed: raw.punchSpeed || 50, punchPower: raw.strength || 50,
+              wrestling: raw.wrestling || 50, submissions: raw.submissions || 50,
+              cardio: raw.cardio || 50, chin: raw.chin || 50,
+              headMovement: raw.headMovement || 50, takedownDefense: raw.takedownDefense || 50,
+            },
+          };
+
+          const CPU_NAMES = ['Iron Fist', 'The Crusher', 'Phantom Strike', 'Steel Storm', 'The Dominator'];
+          const cpuName = CPU_NAMES[Math.floor(Math.random() * CPU_NAMES.length)];
+          const f2: EngineFighter = {
+            id: 'cpu',
+            name: `${cpuName} [CPU]`,
+            stats: {
+              striking: getS('striking'), punchSpeed: getS('punchSpeed', 50),
+              punchPower: getS('strength', 50), wrestling: getS('wrestling'),
+              submissions: getS('submissions'), cardio: getS('cardio'),
+              chin: getS('chin'), headMovement: getS('headMovement'),
+              takedownDefense: getS('takedownDefense'),
+            },
+          };
+
+          add([
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'fight', text: `  ${f1.name.toUpperCase()} vs ${f2.name.toUpperCase()} (PRACTICE)` },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'output', text: '' },
+          ]);
+
+          const result = runLocalFight(f1, f2);
+          result.log.forEach(line => add([{ type: 'output', text: `  ${line}` }]));
+
+          add([
+            { type: 'output', text: '' },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            result.winner === 'DRAW'
+              ? { type: 'fight', text: '  DRAW — PRACTICE FIGHT (no ranking change)' }
+              : { type: 'fight', text: `  WINNER: ${result.winner} by ${result.method} — PRACTICE FIGHT` },
+            { type: 'fight', text: '  ═══════════════════════════════════════════════════════════════' },
+            { type: 'system', text: '  CPU fights are practice only — rankings not affected.' },
+          ]);
+        } catch (e: any) {
+          add([{ type: 'error', text: `  Fight error: ${e.message}` }]);
+        }
+        setProcessing(false);
+        return;
+      }
+
       let nameA: string, nameB: string;
 
       setProcessing(true);
