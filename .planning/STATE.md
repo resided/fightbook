@@ -47,7 +47,7 @@
 
 ## Blockers/Concerns
 
-- **CRITICAL:** API keys stored as base64 (not encrypted) — user keys are effectively public
+- ~~**CRITICAL:** API keys stored as base64~~ — RESOLVED: LLM key feature removed; `api_key_encrypted` always stores `''`, no user keys collected
 - **OPEN:** No authentication — users lose fighters on localStorage clear, leaderboard spammable (deferred — full phase)
 - ~~**HIGH:** Speed control buttons (1x/2x/4x) do nothing~~ — N/A, these controls were deleted with dead code
 - ~~**HIGH:** Skip To End resets the fight instead of fast-forwarding~~ — N/A, deleted with dead code
